@@ -28,7 +28,7 @@ We use the **Feature Branch** model:
 2.  **Pull Requests**:
     - Submit a PR from your branch to `master`.
     - Provide a screenshot or description of the change.
-    - **Wait for Lead Reviewer Approval** (Sagar) before merging.
+    - **Wait for Lead Reviewer Approval** (Shrinath) before merging.
 3.  **Automated Checks**:
     - Every PR will trigger a GitHub Action to build the web app. If the build fails, the PR will be blocked.
 
@@ -41,7 +41,7 @@ To avoid conflicts, we have divided the project. Please stick to your assigned a
 - **Lavi (UI/UX)**: `lib/screens` and `lib/widgets`.
 - **Utkarsh (Backend)**: `lib/services` and `lib/models`.
 - **Khushboo (Maps)**: `lib/screens/map_screen.dart` and location logic.
-- **Sagar (Lead)**: `lib/main.dart` and global architecture.
+- **Shrinath (Lead)**: `lib/main.dart` and global architecture.
 
 ---
 
