@@ -46,8 +46,12 @@ To avoid conflicts, we have divided the project. Please stick to your assigned a
 ---
 
 ## 🏁 Getting Started
-1. Install Flutter (Stable branch).
-2. Run `flutter pub get`.
-3. Start the dev server: `flutter run -d chrome`.
+Please follow the step-by-step setup in the **[HANDBOOK.md](./HANDBOOK.md)**.
+
+1. Install Flutter & Git.
+2. Clone the repo.
+3. Run `flutter pub get`.
+4. Start the dev server: `flutter run -d chrome`.
 
 Happy coding! 🥂🦾✨
+

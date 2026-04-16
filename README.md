@@ -46,16 +46,18 @@ We are now a team-driven project! Please refer to these core documents:
 
 ---
 
-## 🏁 Development Setup
-```bash
-# Clone the repo
-git clone https://github.com/SHUKLASHRI/hangout.git
+## 🏁 Quick Start
+For a full guide on environment setup, Git commands, and deployment, see the **[HANDBOOK.md](./HANDBOOK.md)**.
 
-# Install dependencies
+```bash
+# 1. Clone & Setup
+git clone https://github.com/SHUKLASHRI/hangout.git
+cd hangout
 flutter pub get
 
-# Run the app
+# 2. Run
 flutter run -d chrome
 ```
+
 
 built with ❤️ by the HANGOUT Team.
