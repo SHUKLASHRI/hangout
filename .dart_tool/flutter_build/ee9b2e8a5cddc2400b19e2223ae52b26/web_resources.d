@@ -1,0 +1,1 @@
+ C:\\Users\\sagar\\.gemini\\antigravity\\scratch\\hangout_flutter\\build\\web\\manifest.json:  C:\\Users\\sagar\\.gemini\\antigravity\\scratch\\hangout_flutter\\web\\index.html C:\\Users\\sagar\\.gemini\\antigravity\\scratch\\hangout_flutter\\web\\manifest.json
