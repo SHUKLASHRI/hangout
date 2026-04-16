@@ -21,19 +21,10 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Subtle background decoration (Soft Blue blur)
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primarySoft.withValues(alpha: 0.2),
-              ),
-            ),
-          ).animate().fadeIn(duration: 1.seconds).scale(),
+          // Dynamic Background Blobs
+          _buildAnimatedBlob(top: -100, left: -100, color: AppColors.primarySoft, delay: 0.ms),
+          _buildAnimatedBlob(bottom: -150, right: -50, color: AppColors.secondary, delay: 1000.ms),
+          _buildAnimatedBlob(top: 200, right: -120, color: AppColors.primary, delay: 2000.ms),
           
           SafeArea(
             child: LayoutBuilder(
@@ -44,57 +35,65 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: SingleChildScrollView(
                     child: GlassContainer.clearGlass(
                       width: width,
-                      height: 600,
-                      borderRadius: BorderRadius.circular(24),
+                      height: 650,
+                      borderRadius: BorderRadius.circular(32),
                       borderColor: AppColors.border,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.white.withValues(alpha: 0.8),
+                          Colors.white.withValues(alpha: 0.4),
+                        ],
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 48),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Icon(LucideIcons.heart, size: 56, color: AppColors.secondary)
-                              .animate()
-                              .fade(duration: 500.ms)
-                              .scale(delay: 200.ms),
-                          const SizedBox(height: 24),
-                          Text(
-                            "Welcome to HANGOUT",
-                            style: Theme.of(context).textTheme.displayMedium,
-                            textAlign: TextAlign.center,
-                          ).animate().slideY(begin: 0.1, duration: 400.ms).fadeIn(),
-                          const SizedBox(height: 8),
+                          const Icon(LucideIcons.heart, size: 64, color: AppColors.secondary)
+                              .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                              .scale(duration: 2.seconds, begin: const Offset(1, 1), end: const Offset(1.2, 1.2), curve: Curves.easeInOut),
+                          const SizedBox(height: 32),
                           const Text(
-                            "Join nearby meetups and meet new people securely.",
-                            style: TextStyle(color: AppColors.textSecondary),
+                            "HANGOUT",
+                            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 4, color: AppColors.primary),
                             textAlign: TextAlign.center,
-                          ).animate().fadeIn(delay: 300.ms),
-                          const SizedBox(height: 48),
+                          ).animate().fadeIn(duration: 800.ms),
+                          const SizedBox(height: 12),
+                          const Text(
+                            "Safe, Social, & Trustworthy",
+                            style: TextStyle(color: AppColors.textSecondary, letterSpacing: 0.5),
+                            textAlign: TextAlign.center,
+                          ).animate().fadeIn(delay: 400.ms),
+                          const SizedBox(height: 56),
                           
-                          // Google Sign In (LinkedIn-style Reliability)
+                          // Google Sign In (Full Width Premium)
                           ElevatedButton.icon(
                             icon: const FaIcon(FontAwesomeIcons.google, size: 18),
-                            label: const Text("Continue with Google"),
+                            label: const Text("CONTINUE WITH GOOGLE"),
                             onPressed: () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.surface,
                               foregroundColor: AppColors.textPrimary,
                               side: const BorderSide(color: AppColors.border),
-                              elevation: 1,
+                              elevation: 2,
+                              minimumSize: const Size.fromHeight(60),
                             ),
-                          ).animate().slideX(begin: -0.1, delay: 500.ms).fadeIn(),
+                          ).animate().slideY(begin: 0.2, end: 0, delay: 600.ms).fadeIn(),
                           
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 32),
                           const Row(
                             children: [
                               Expanded(child: Divider()),
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 16),
-                                child: Text("OR", style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                                child: Text("OR USE PHONE", style: TextStyle(color: AppColors.textSecondary, fontSize: 10, letterSpacing: 1.2, fontWeight: FontWeight.bold)),
                               ),
                               Expanded(child: Divider()),
                             ],
-                          ),
-                          const SizedBox(height: 24),
+                          ).animate().fadeIn(delay: 800.ms),
+                          const SizedBox(height: 32),
 
                           TextField(
                             controller: _phoneController,
@@ -103,19 +102,19 @@ class _LoginScreenState extends State<LoginScreen> {
                               prefixIcon: Icon(LucideIcons.phone, size: 20),
                               hintText: "Phone Number",
                             ),
-                          ),
+                          ).animate().fadeIn(delay: 1000.ms),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {},
-                            child: const Text("Send OTP"),
-                          ),
+                            child: const Text("SEND OTP"),
+                          ).animate().fadeIn(delay: 1200.ms),
                           
                           const Spacer(),
                           const Text(
                             "By continuing, you agree to our Terms and Privacy Policy",
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          ),
+                            style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          ).animate().fadeIn(delay: 1400.ms),
                         ],
                       ),
                     ),
@@ -126,6 +125,26 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAnimatedBlob({double? top, double? left, double? right, double? bottom, required Color color, required Duration delay}) {
+    return Positioned(
+      top: top,
+      left: left,
+      right: right,
+      bottom: bottom,
+      child: Container(
+        width: 350,
+        height: 350,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color.withValues(alpha: 0.15),
+        ),
+      ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+       .move(duration: 5.seconds, begin: const Offset(-20, -20), end: const Offset(20, 20), curve: Curves.easeInOut)
+       .scale(duration: 8.seconds, begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2), curve: Curves.easeInOut)
+       .fadeIn(delay: delay),
     );
   }
 }

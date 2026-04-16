@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:glass_kit/glass_kit.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_theme.dart';
 import '../models/seed_data.dart';
 
@@ -16,13 +17,14 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   String _selectedFilter = 'today';
   static const LatLng _bangalore = LatLng(12.9716, 77.5946);
+  final DraggableScrollableController _sheetController = DraggableScrollableController();
 
   Set<Marker> _getMarkers() {
     return SEEDED_HANGOUTS.map((hangout) {
       return Marker(
         markerId: MarkerId(hangout.id),
         position: hangout.position,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange), // Social Orange Pins
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
         infoWindow: InfoWindow(
           title: hangout.title,
           snippet: '${hangout.category} • ${hangout.time}',
@@ -54,34 +56,34 @@ class _MapScreenState extends State<MapScreen> {
                       markers: _getMarkers(),
                       myLocationButtonEnabled: false,
                       zoomControlsEnabled: false,
+                      mapToolbarEnabled: false,
                     ),
 
-                    // Floating Header
+                    // Floating Header (Search & Filters)
                     Positioned(
                       top: 40,
                       left: 16,
                       right: 16,
-                      child: _buildFloatingHeader(),
+                      child: _buildFloatingHeader()
+                        .animate()
+                        .fadeIn(duration: 600.ms)
+                        .slideY(begin: -0.2, end: 0, curve: Curves.easeOutBack),
                     ),
 
-                    // Bottom Banner (Mobile only or floating on web)
-                    if (!isDesktop)
-                      Positioned(
-                        bottom: 100,
-                        left: 16,
-                        right: 16,
-                        child: _buildGuestBanner(),
-                      ),
+                    // Mobile Sliding Panel
+                    if (!isDesktop) _buildDraggableSheet(),
                     
-                    // FAB
+                    // FAB (Pulse Animation for "Host")
                     Positioned(
-                      bottom: 30,
+                      bottom: isDesktop ? 32 : 110,
                       right: 16,
                       child: FloatingActionButton(
                         onPressed: () {},
                         backgroundColor: AppColors.secondary,
-                        child: const Icon(LucideIcons.plus, size: 30, color: Colors.white),
-                      ),
+                        elevation: 4,
+                        child: const Icon(LucideIcons.plus, size: 28, color: Colors.white),
+                      ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                       .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 2.seconds, curve: Curves.easeInOut),
                     ),
                   ],
                 ),
@@ -93,24 +95,70 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  Widget _buildDraggableSheet() {
+    return DraggableScrollableSheet(
+      controller: _sheetController,
+      initialChildSize: 0.12,
+      minChildSize: 0.12,
+      maxChildSize: 0.8,
+      builder: (context, scrollController) {
+        return GlassContainer.frostedGlass(
+          height: double.infinity,
+          width: double.infinity,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          borderColor: AppColors.border,
+          color: AppColors.surface.withValues(alpha: 0.9),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+                  itemCount: SEEDED_HANGOUTS.length,
+                  itemBuilder: (context, index) => _buildHangoutCard(SEEDED_HANGOUTS[index]),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildSidebar(BoxConstraints constraints) {
     return Container(
-      width: 350,
+      width: 380,
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(right: BorderSide(color: AppColors.border)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
-            padding: EdgeInsets.all(24.0),
-            child: Text("Discover Hangouts", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            padding: EdgeInsets.fromLTRB(24, 60, 24, 24),
+            child: Text(
+              "Discover Nearby",
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            ),
           ),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: 5,
-              itemBuilder: (context, index) => _buildHangoutCard(),
+              itemCount: SEEDED_HANGOUTS.length,
+              itemBuilder: (context, index) => _buildHangoutCard(SEEDED_HANGOUTS[index])
+                .animate()
+                .fadeIn(delay: (100 * index).ms)
+                .slideX(begin: -0.1, end: 0),
             ),
           ),
         ],
@@ -118,14 +166,24 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _buildHangoutCard() {
+  Widget _buildHangoutCard(hangout) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: ListTile(
-        title: const Text("Strategy Games Night"),
-        subtitle: const Text("7:00 PM • 3 Spots left"),
-        trailing: const Icon(LucideIcons.chevronRight),
-        onTap: () {},
+        contentPadding: const EdgeInsets.all(12),
+        leading: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(LucideIcons.users, color: AppColors.primary),
+        ),
+        title: Text(hangout.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text("${hangout.time} • ${hangout.category}", style: const TextStyle(color: AppColors.textSecondary)),
+        trailing: const Icon(LucideIcons.chevronRight, size: 18),
+        onTap: () => context.push('/hangout/${hangout.id}'),
       ),
     );
   }
@@ -137,78 +195,64 @@ class _MapScreenState extends State<MapScreen> {
           height: 56,
           width: double.infinity,
           borderColor: AppColors.border,
-          color: AppColors.surface.withValues(alpha: 0.8),
+          color: AppColors.surface.withValues(alpha: 0.85),
+          borderRadius: BorderRadius.circular(16),
           child: const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Icon(LucideIcons.search, size: 20, color: AppColors.textSecondary),
                 SizedBox(width: 12),
-                Text("Search for hangouts...", style: TextStyle(color: AppColors.textSecondary)),
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Search for activities...",
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      fillColor: Colors.transparent,
+                    ),
+                  ),
+                ),
+                VerticalDivider(indent: 12, endIndent: 12),
+                Icon(LucideIcons.slidersHorizontal, size: 20, color: AppColors.primary),
               ],
             ),
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: ['1H', '3H', 'TODAY', 'WEEK'].map((label) {
-            final bool isActive = _selectedFilter == label.toLowerCase();
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: InkWell(
-                onTap: () => setState(() => _selectedFilter = label.toLowerCase()),
-                child: GlassContainer.clearGlass(
-                  height: 36,
-                  width: 80,
-                  color: isActive ? AppColors.primary : AppColors.surface.withValues(alpha: 0.8),
-                  borderRadius: BorderRadius.circular(20),
-                  borderWidth: 1,
-                  borderColor: isActive ? AppColors.primary : AppColors.border,
-                  child: Center(
-                    child: Text(
-                      label,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: isActive ? Colors.white : AppColors.textSecondary,
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: ['NOW', '3H', 'TODAY', 'WEEKEND', 'ALL'].map((label) {
+              final bool isActive = _selectedFilter == label.toLowerCase();
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: InkWell(
+                  onTap: () => setState(() => _selectedFilter = label.toLowerCase()),
+                  child: GlassContainer.clearGlass(
+                    height: 40,
+                    width: 90,
+                    color: isActive ? AppColors.primary : AppColors.surface.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(20),
+                    borderColor: isActive ? AppColors.primary : AppColors.border,
+                    child: Center(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                          color: isActive ? Colors.white : AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }).toList(),
+              );
+            }).toList(),
+          ),
         ),
       ],
-    );
-  }
-
-  Widget _buildGuestBanner() {
-    return GlassContainer.frostedGlass(
-      height: 80,
-      width: double.infinity,
-      borderRadius: BorderRadius.circular(16),
-      borderWidth: 1,
-      borderColor: AppColors.border,
-      color: AppColors.surface.withValues(alpha: 0.9),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            const Expanded(
-              child: Text("Join hangouts and meet new people!", style: TextStyle(fontWeight: FontWeight.w500)),
-            ),
-            ElevatedButton(
-              onPressed: () => context.push('/login'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.secondary,
-                minimumSize: const Size(100, 40),
-              ),
-              child: const Text("Sign In"),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

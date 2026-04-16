@@ -29,7 +29,7 @@ class HangoutApp extends StatelessWidget {
       child: MaterialApp.router(
         title: 'HANGOUT',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme, // Using the new Trust + Social Light Theme
+        theme: AppTheme.lightTheme,
         routerConfig: _router,
         scrollBehavior: const MaterialScrollBehavior().copyWith(
           dragDevices: {
@@ -44,43 +44,78 @@ class HangoutApp extends StatelessWidget {
   }
 }
 
+// Helper for premium page transitions
+CustomTransitionPage _buildPageTransition({required Widget child, required GoRouterState state}) {
+  return CustomTransitionPage(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.05),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
 final GoRouter _router = GoRouter(
   initialLocation: '/',
   routes: [
-    // Auth Routes
     GoRoute(
       path: '/login',
-      builder: (context, state) => const LoginScreen(),
+      pageBuilder: (context, state) => _buildPageTransition(
+        state: state,
+        child: const LoginScreen(),
+      ),
     ),
 
-    // Main App Shell Routes
     ShellRoute(
       builder: (context, state, child) => AppShell(child: child),
       routes: [
         GoRoute(
           path: '/',
-          builder: (context, state) => const MapScreen(),
+          pageBuilder: (context, state) => _buildPageTransition(
+            state: state,
+            child: const MapScreen(),
+          ),
         ),
         GoRoute(
           path: '/feed',
-          builder: (context, state) => const FeedScreen(),
+          pageBuilder: (context, state) => _buildPageTransition(
+            state: state,
+            child: const FeedScreen(),
+          ),
         ),
         GoRoute(
           path: '/chats',
-          builder: (context, state) => const ChatScreen(id: 'general'),
+          pageBuilder: (context, state) => _buildPageTransition(
+            state: state,
+            child: const ChatScreen(id: 'general'),
+          ),
         ),
         GoRoute(
           path: '/profile',
-          builder: (context, state) => const ProfileScreen(),
+          pageBuilder: (context, state) => _buildPageTransition(
+            state: state,
+            child: const ProfileScreen(),
+          ),
         ),
       ],
     ),
 
-    // Details Routes (outside shell for full screen focus)
     GoRoute(
       path: '/hangout/:id',
-      builder: (context, state) => HangoutDetailScreen(
-        id: state.pathParameters['id']!,
+      pageBuilder: (context, state) => _buildPageTransition(
+        state: state,
+        child: HangoutDetailScreen(
+          id: state.pathParameters['id']!,
+        ),
       ),
     ),
   ],
