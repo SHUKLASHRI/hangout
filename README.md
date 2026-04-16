@@ -27,11 +27,14 @@ HANGOUT is designed with **Psychology-Driven UX**:
 
 ---
 
-## 👨‍💻 Contributing
-We are now a team-driven project! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for our coding standards and branching strategy.
+## 👨‍💻 Development Center
+We are now a team-driven project! Please refer to these core documents:
+- **[PRD.md](./PRD.md)**: Product vision, features, and the live roadmap.
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Technical guide on how we build (GoRouter, Provider, Firebase).
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)**: Rules for code style, theme tokens, and branching.
 
 ### **Team Structure & Roles**
-- **Lead Developer**: Sagar Shukla (@SHUKLASHRI) - *Gatekeeper & Reviewer*
+- **Lead Developer**: Shrinath Shukla (@SHUKLASHRI) - *Gatekeeper & Reviewer*
 - **Utkarsh**: Backend & Logic Architect - *Focus: `lib/services`, `lib/models`, Firebase Integration*
 - **Lavi**: UI/UX & Interaction Specialist - *Focus: `lib/screens`, `lib/widgets`, Theme Polish*
 - **Khushboo**: Mapping & Location Lead - *Focus: `lib/screens/map_screen.dart`, Geolocation*
