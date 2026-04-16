@@ -30,9 +30,15 @@ HANGOUT is designed with **Psychology-Driven UX**:
 ## 👨‍💻 Contributing
 We are now a team-driven project! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for our coding standards and branching strategy.
 
+### **Team Structure & Roles**
+- **Lead Developer**: Sagar Shukla (@SHUKLASHRI) - *Gatekeeper & Reviewer*
+- **Utkarsh**: Backend & Logic Architect - *Focus: `lib/services`, `lib/models`, Firebase Integration*
+- **Lavi**: UI/UX & Interaction Specialist - *Focus: `lib/screens`, `lib/widgets`, Theme Polish*
+- **Khushboo**: Mapping & Location Lead - *Focus: `lib/screens/map_screen.dart`, Geolocation*
+
 ### **Core Workflows**
-1.  **Lead Developer**: Sagar Shukla (@SHUKLASHRI)
-2.  **Pull Requests**: All features must be merged via PR and reviewed.
+1.  **Feature Branches**: Everyone works on their own branch (`feature/your-task`).
+2.  **Pull Requests**: All features must be merged via PR and reviewed by Sagar.
 3.  **Automatic Deployment**: Every push to `master` triggers a GitHub Action to deploy to Firebase Hosting.
 
 ---

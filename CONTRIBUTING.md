@@ -34,13 +34,14 @@ We use the **Feature Branch** model:
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Structure & Ownership
 
-- `lib/screens`: All page-level widgets.
-- `lib/widgets`: Reusable UI components.
-- `lib/services`: External APIs (Firebase, Auth, Location).
-- `lib/models`: Data structures and seed data.
-- `lib/theme`: Central source of truth for colors and fonts.
+To avoid conflicts, we have divided the project. Please stick to your assigned areas:
+
+- **Lavi (UI/UX)**: `lib/screens` and `lib/widgets`.
+- **Utkarsh (Backend)**: `lib/services` and `lib/models`.
+- **Khushboo (Maps)**: `lib/screens/map_screen.dart` and location logic.
+- **Sagar (Lead)**: `lib/main.dart` and global architecture.
 
 ---
 
