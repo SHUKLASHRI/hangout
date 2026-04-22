@@ -1,5 +1,5 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/theme.dart';
@@ -9,28 +9,21 @@ import 'services/firestore_service.dart';
 import 'services/hangout_service.dart';
 import 'services/location_service.dart';
 import 'services/trust_service.dart';
-import 'services/notification_service.dart'; // Added for G18
+import 'services/notification_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/app_state.dart';
 import 'providers/hangout_provider.dart';
 import 'providers/location_provider.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  // Initialize Firebase — must succeed for auth to work
   try {
     await Firebase.initializeApp();
   } catch (e) {
-    debugPrint('Firebase not initialized yet: $e');
-  }
-
-  // Load Liquid Glass Shader
-  ui.FragmentProgram? liquidGlassProgram;
-  try {
-    liquidGlassProgram = await ui.FragmentProgram.fromAsset('shaders/liquid_glass.frag');
-  } catch (e) {
-    debugPrint('Failed to load shader: $e');
+    debugPrint('[HANGOUT] Firebase init error: $e');
+    // App will still launch; auth provider handles the error state gracefully
   }
 
   // Core Services
@@ -41,13 +34,18 @@ void main() async {
   final trustService = TrustService();
   final notificationService = NotificationService();
 
-  // Initialize Notifications
-  await notificationService.init();
+  // Notifications are NOT supported on Flutter Web — guard here
+  if (!kIsWeb) {
+    try {
+      await notificationService.init();
+    } catch (e) {
+      debugPrint('[HANGOUT] Notification init error: $e');
+    }
+  }
 
   runApp(
     MultiProvider(
       providers: [
-        Provider<ui.FragmentProgram?>.value(value: liquidGlassProgram),
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
         Provider<AuthService>.value(value: authService),
         Provider<FirestoreService>.value(value: firestoreService),

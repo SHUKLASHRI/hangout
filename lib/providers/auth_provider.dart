@@ -44,6 +44,17 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> signInWithEmail(String email, String password) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _authService.signInWithEmail(email, password);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> loginWithGoogle() async {
     try {
       _isLoading = true;

@@ -20,12 +20,21 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigateToNext() async {
-    // Artificial delay for splash animation
-    await Future.delayed(const Duration(milliseconds: 3000));
-    
+    // Minimum display time for splash animation
+    await Future.delayed(const Duration(milliseconds: 2500));
     if (!mounted) return;
 
     final auth = context.read<AuthProvider>();
+
+    // Wait for Firebase auth state to be determined (max 5 extra seconds)
+    int waited = 0;
+    while (auth.isLoading && waited < 50) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      waited++;
+      if (!mounted) return;
+    }
+
+    if (!mounted) return;
 
     if (!auth.isLoggedIn) {
       context.go('/login');
@@ -44,7 +53,6 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // HANGOUT Heartbeat Animation
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -71,10 +79,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 blurRadius: 20,
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
-            // Brand Name Staggered Reveal
+
             Text(
               'HANGOUT',
               style: Theme.of(context).textTheme.displayLarge?.copyWith(
@@ -86,9 +93,9 @@ class _SplashScreenState extends State<SplashScreen> {
             .fadeIn(duration: 800.ms)
             .slideY(begin: 0.2, end: 0)
             .shimmer(delay: 1200.ms, duration: 1500.ms, color: AppColors.socialOrange.withValues(alpha: 0.5)),
-            
+
             const SizedBox(height: 8),
-            
+
             Text(
               'TRUST · SOCIAL · SAFETY',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
