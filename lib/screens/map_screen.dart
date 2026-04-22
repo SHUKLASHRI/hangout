@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:go_router/go_router.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import '../models/hangout_model.dart';
 import '../providers/hangout_provider.dart';
 import '../providers/location_provider.dart';
@@ -36,7 +37,6 @@ class _MapScreenState extends State<MapScreen> {
     final Set<Circle> newCircles = {};
 
     for (final hangout in hangouts) {
-      // 1. Generate Custom Marker
       final icon = await MarkerGenerator.createCustomMarkerBitmap(
         HangoutMarkerWidget(hangout: hangout),
       );
@@ -52,13 +52,11 @@ class _MapScreenState extends State<MapScreen> {
         ),
       );
 
-      // 2. Generate Privacy Circle (M4-B3)
-      // Visualises "somewhere in this 500m zone"
       newCircles.add(
         Circle(
           circleId: CircleId('zone_${hangout.id}'),
           center: LatLng(hangout.meetingZone.latitude, hangout.meetingZone.longitude),
-          radius: 500, // 500m per PRD
+          radius: 500,
           fillColor: AppColors.socialOrange.withValues(alpha: 0.12),
           strokeColor: AppColors.socialOrange.withValues(alpha: 0.5),
           strokeWidth: 2,
@@ -82,13 +80,12 @@ class _MapScreenState extends State<MapScreen> {
     final hangoutProvider = context.watch<HangoutProvider>();
     final locationProvider = context.watch<LocationProvider>();
 
-    // Update map elements when the hangout list changes
     _updateMapElements(hangoutProvider.hangouts);
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          GoogleMap(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return LiquidGlassView(
+          backgroundWidget: GoogleMap(
             mapType: MapType.normal,
             initialCameraPosition: CameraPosition(
               target: LatLng(
@@ -98,7 +95,7 @@ class _MapScreenState extends State<MapScreen> {
               zoom: 14,
             ),
             markers: _markers,
-            circles: _circles, // Privacy circles layer
+            circles: _circles,
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
@@ -106,56 +103,70 @@ class _MapScreenState extends State<MapScreen> {
               _controller.complete(controller);
             },
           ),
-          
-          if (_isGeneratingMarkers)
-            const Positioned(
-              top: 50,
-              left: 20,
-              child: Card(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
+          children: [
+            // Status Card (Liquid)
+            if (_isGeneratingMarkers)
+              LiquidGlass(
+                width: 200,
+                height: 50,
+                position: LiquidGlassAlignPosition(
+                  alignment: Alignment.topLeft,
+                  offset: const Offset(20, 50),
+                ),
+                magnification: 1.1,
+                distortion: 0.1,
+                shape: const RoundedRectangleShape(cornerRadius: 12),
+                color: Colors.white.withValues(alpha: 0.1),
+                child: const Center(
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(width: 15, height: 15, child: CircularProgressIndicator(strokeWidth: 2)),
                       SizedBox(width: 10),
-                      Text("Updating discovery map...", style: TextStyle(fontSize: 12)),
+                      Text("Updating Map...", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
               ),
+
+            // Map Action Buttons (Liquid Lenses)
+            LiquidGlass(
+              width: 56,
+              height: 128,
+              position: LiquidGlassAlignPosition(
+                alignment: Alignment.bottomRight,
+                offset: const Offset(-20, -120),
+              ),
+              magnification: 1.2,
+              distortion: 0.2,
+              chromaticAberration: 0.008,
+              shape: const RoundedRectangleShape(cornerRadius: 28),
+              color: Colors.white.withValues(alpha: 0.05),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _mapActionButton(Icons.filter_list_rounded, () {}),
+                  _mapActionButton(Icons.my_location_rounded, () async {
+                    final controller = await _controller.future;
+                    if (locationProvider.currentPosition != null) {
+                      controller.animateCamera(CameraUpdate.newLatLng(
+                        LatLng(locationProvider.currentPosition!.latitude, locationProvider.currentPosition!.longitude),
+                      ));
+                    }
+                  }),
+                ],
+              ),
             ),
-            
-          Positioned(
-            right: 20,
-            bottom: 120,
-            child: Column(
-              children: [
-                _mapActionButton(Icons.filter_list_rounded, () {}),
-                const SizedBox(height: 16),
-                _mapActionButton(Icons.my_location_rounded, () async {
-                  final controller = await _controller.future;
-                  if (locationProvider.currentPosition != null) {
-                    controller.animateCamera(CameraUpdate.newLatLng(
-                      LatLng(locationProvider.currentPosition!.latitude, locationProvider.currentPosition!.longitude),
-                    ));
-                  }
-                }),
-              ],
-            ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
   Widget _mapActionButton(IconData icon, VoidCallback onTap) {
-    return FloatingActionButton(
-      heroTag: null,
+    return IconButton(
+      icon: Icon(icon, color: AppColors.trustBlue),
       onPressed: onTap,
-      backgroundColor: Colors.white,
-      foregroundColor: AppColors.trustBlue,
-      elevation: 4,
-      child: Icon(icon),
     );
   }
 }

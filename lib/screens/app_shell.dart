@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import '../core/theme.dart';
 import '../providers/app_state.dart';
 
@@ -23,17 +24,36 @@ class AppShell extends StatelessWidget {
       builder: (context, constraints) {
         final bool isDesktop = constraints.maxWidth > 800;
 
-        return Scaffold(
-          body: Row(
-            children: [
-              if (isDesktop) _buildSidebar(context, state),
-              Expanded(child: child),
-            ],
+        return LiquidGlassView(
+          backgroundWidget: Scaffold(
+            backgroundColor: AppColors.background,
+            body: Row(
+              children: [
+                if (isDesktop) _buildSidebar(context, state),
+                Expanded(child: child),
+              ],
+            ),
+            floatingActionButton: isDesktop ? null : _buildFAB(context),
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           ),
-          // M1-B1: The +Create tab triggers a modal, but for the Shell we use a FAB on mobile
-          floatingActionButton: isDesktop ? null : _buildFAB(context),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-          bottomNavigationBar: isDesktop ? null : _buildGlassBottomNavBar(context, state),
+          children: [
+            // M1-B1: True Liquid Glass Navigation Bar
+            if (!isDesktop)
+              LiquidGlass(
+                width: constraints.maxWidth - 32,
+                height: 90,
+                position: LiquidGlassAlignPosition(
+                  alignment: Alignment.bottomCenter,
+                  offset: const Offset(0, -20),
+                ),
+                magnification: 1.1,
+                distortion: 0.15,
+                chromaticAberration: 0.004,
+                color: AppColors.trustBlue.withValues(alpha: 0.1),
+                shape: const RoundedRectangleShape(cornerRadius: 30),
+                child: _buildBottomNavContent(context, state),
+              ),
+          ],
         );
       },
     );
@@ -61,32 +81,22 @@ class AppShell extends StatelessWidget {
     );
   }
 
-  Widget _buildGlassBottomNavBar(BuildContext context, AppStateProvider state) {
+  Widget _buildBottomNavContent(BuildContext context, AppStateProvider state) {
     return Container(
-      height: 90,
-      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
-      child: ClipRRect(
+      decoration: BoxDecoration(
+        color: AppColors.trustBlue.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(30),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.trustBlue.withValues(alpha: 0.85),
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _navItem(context, state, 0, LucideIcons.map, 'Map'),
-                _navItem(context, state, 1, LucideIcons.layoutList, 'Feed'),
-                const SizedBox(width: 40), // Spacer for FAB
-                _navItem(context, state, 2, LucideIcons.messageSquare, 'Chat'),
-                _navItem(context, state, 3, LucideIcons.user, 'Profile'),
-              ],
-            ),
-          ),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _navItem(context, state, 0, LucideIcons.map, 'Map'),
+          _navItem(context, state, 1, LucideIcons.layoutList, 'Feed'),
+          const SizedBox(width: 40), // Spacer for FAB
+          _navItem(context, state, 2, LucideIcons.messageSquare, 'Chat'),
+          _navItem(context, state, 3, LucideIcons.user, 'Profile'),
+        ],
       ),
     );
   }
@@ -153,6 +163,7 @@ class AppShell extends StatelessWidget {
                 backgroundColor: AppColors.socialOrange,
                 foregroundColor: Colors.white,
                 minimumSize: const Size.fromHeight(60),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
             ),
           ),

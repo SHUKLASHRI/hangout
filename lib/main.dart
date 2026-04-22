@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -24,6 +25,14 @@ void main() async {
     debugPrint('Firebase not initialized yet: $e');
   }
 
+  // Load Liquid Glass Shader
+  ui.FragmentProgram? liquidGlassProgram;
+  try {
+    liquidGlassProgram = await ui.FragmentProgram.fromAsset('shaders/liquid_glass.frag');
+  } catch (e) {
+    debugPrint('Failed to load shader: $e');
+  }
+
   // Core Services
   final authService = AuthService();
   final firestoreService = FirestoreService();
@@ -38,6 +47,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        Provider<ui.FragmentProgram?>.value(value: liquidGlassProgram),
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
         Provider<AuthService>.value(value: authService),
         Provider<FirestoreService>.value(value: firestoreService),
