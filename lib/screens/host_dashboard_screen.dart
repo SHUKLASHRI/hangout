@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import '../core/theme.dart';
+import '../widgets/glass_card.dart';
 
 class HostDashboardScreen extends StatelessWidget {
   final String id;
@@ -8,11 +9,20 @@ class HostDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Manage Attendance")),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text("Manage Attendance"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Text("Verify who showed up to Strategy Night", style: TextStyle(color: AppColors.textSecondary)),
+          const Text(
+            "Verify who showed up to Strategy Night",
+            style: TextStyle(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 24),
           _buildParticipantItem("Arjun", true),
           _buildParticipantItem("Sara", true),
@@ -21,35 +31,39 @@ class HostDashboardScreen extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: ElevatedButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text("Complete Hangout"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.safetyGreen,
+          ),
+          child: const Text("COMPLETE HANGOUT"),
         ),
       ),
     );
   }
 
   Widget _buildParticipantItem(String name, bool isPresent) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(backgroundColor: AppColors.primary, child: Text(name[0])),
-          const SizedBox(width: 16),
-          Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold))),
-          Checkbox(
-            value: isPresent,
-            onChanged: (val) {},
-            activeColor: AppColors.primary,
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GlassCard(
+        padding: const EdgeInsets.all(16),
+        tintColor: isPresent ? AppColors.safetyGreen : AppColors.trustBlue,
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: isPresent ? AppColors.safetyGreen.withValues(alpha: 0.2) : AppColors.trustBlue.withValues(alpha: 0.2),
+              child: Text(name[0], style: TextStyle(color: isPresent ? AppColors.safetyGreen : AppColors.trustBlue, fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(width: 16),
+            Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold))),
+            Checkbox(
+              value: isPresent,
+              onChanged: (val) {},
+              activeColor: AppColors.safetyGreen,
+            ),
+          ],
+        ),
       ),
     );
   }

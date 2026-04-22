@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Logic Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // 👤 Users Collection
+    match /users/{userId} {
+      // Anyone signed in can read a user's trust profile
+      allow read: if isSignedIn();
+      // Only the owner can write their document
+      allow write: if isOwner(userId);
+    }
+
+    // 🥂 Hangouts Collection
+    match /hangouts/{hangoutId} {
+      // All authenticated users can see available hangouts
+      allow read: if isSignedIn();
+      
+      // Creating a hangout
+      allow create: if isSignedIn() 
+        && request.resource.data.hostId == request.auth.uid;
+        
+      // Updating a hangout (Join/Leave/Cancel)
+      allow update: if isSignedIn() 
+        && (
+          // Host can update (cancel/edit)
+          request.auth.uid == resource.data.hostId
+          // Or a user can join/leave (modifying only the participantIds array)
+          || (request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['participantIds', 'status']))
+        );
+        
+      allow delete: if false; // Deletion not allowed, use 'cancelled' status
+    }
+
+    // ⭐ Ratings Collection
+    match /ratings/{ratingId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.fromUid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ⚠️ Reports Collection
+    match /reports/{reportId} {
+      allow create: if isSignedIn() && request.resource.data.reporterUid == request.auth.uid;
+      allow read, update, delete: if false; // Only manageable via Admin SDK/Console
+    }
+  }
+}

@@ -1,20 +1,63 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
-import 'theme/app_theme.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'core/theme.dart';
+import 'core/router.dart';
 import 'services/auth_service.dart';
-import 'screens/app_shell.dart';
-import 'screens/map_screen.dart';
-import 'screens/auth/login_screen.dart';
-import 'screens/feed_screen.dart';
-import 'screens/profile_screen.dart';
-import 'screens/chat_screen.dart';
-import 'screens/hangout_detail_screen.dart';
+import 'services/firestore_service.dart';
+import 'services/hangout_service.dart';
+import 'services/location_service.dart';
+import 'services/trust_service.dart';
+import 'services/notification_service.dart'; // Added for G18
+import 'providers/auth_provider.dart';
+import 'providers/app_state.dart';
+import 'providers/hangout_provider.dart';
+import 'providers/location_provider.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const HangoutApp());
+  
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase not initialized yet: $e');
+  }
+
+  // Core Services
+  final authService = AuthService();
+  final firestoreService = FirestoreService();
+  final hangoutService = HangoutService();
+  final locationService = LocationService();
+  final trustService = TrustService();
+  final notificationService = NotificationService();
+
+  // Initialize Notifications
+  await notificationService.init();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppStateProvider()),
+        Provider<AuthService>.value(value: authService),
+        Provider<FirestoreService>.value(value: firestoreService),
+        Provider<HangoutService>.value(value: hangoutService),
+        Provider<LocationService>.value(value: locationService),
+        Provider<TrustService>.value(value: trustService),
+        Provider<NotificationService>.value(value: notificationService),
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(authService, firestoreService),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => HangoutProvider(hangoutService),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LocationProvider(locationService),
+        ),
+      ],
+      child: const HangoutApp(),
+    ),
+  );
 }
 
 class HangoutApp extends StatelessWidget {
@@ -22,101 +65,11 @@ class HangoutApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthService()),
-      ],
-      child: MaterialApp.router(
-        title: 'HANGOUT',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        routerConfig: _router,
-        scrollBehavior: const MaterialScrollBehavior().copyWith(
-          dragDevices: {
-            PointerDeviceKind.mouse,
-            PointerDeviceKind.touch,
-            PointerDeviceKind.stylus,
-            PointerDeviceKind.unknown,
-          },
-        ),
-      ),
+    return MaterialApp.router(
+      title: 'HANGOUT',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      routerConfig: AppRouter.router,
     );
   }
 }
-
-// Helper for premium page transitions
-CustomTransitionPage _buildPageTransition({required Widget child, required GoRouterState state}) {
-  return CustomTransitionPage(
-    key: state.pageKey,
-    child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 0.05),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
-        ),
-      );
-    },
-  );
-}
-
-final GoRouter _router = GoRouter(
-  initialLocation: '/',
-  routes: [
-    GoRoute(
-      path: '/login',
-      pageBuilder: (context, state) => _buildPageTransition(
-        state: state,
-        child: const LoginScreen(),
-      ),
-    ),
-
-    ShellRoute(
-      builder: (context, state, child) => AppShell(child: child),
-      routes: [
-        GoRoute(
-          path: '/',
-          pageBuilder: (context, state) => _buildPageTransition(
-            state: state,
-            child: const MapScreen(),
-          ),
-        ),
-        GoRoute(
-          path: '/feed',
-          pageBuilder: (context, state) => _buildPageTransition(
-            state: state,
-            child: const FeedScreen(),
-          ),
-        ),
-        GoRoute(
-          path: '/chats',
-          pageBuilder: (context, state) => _buildPageTransition(
-            state: state,
-            child: const ChatScreen(id: 'general'),
-          ),
-        ),
-        GoRoute(
-          path: '/profile',
-          pageBuilder: (context, state) => _buildPageTransition(
-            state: state,
-            child: const ProfileScreen(),
-          ),
-        ),
-      ],
-    ),
-
-    GoRoute(
-      path: '/hangout/:id',
-      pageBuilder: (context, state) => _buildPageTransition(
-        state: state,
-        child: HangoutDetailScreen(
-          id: state.pathParameters['id']!,
-        ),
-      ),
-    ),
-  ],
-);

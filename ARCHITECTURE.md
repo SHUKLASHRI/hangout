@@ -1,74 +1,61 @@
-# HANGOUT: Technical Architecture 🏗️
+# HANGOUT: System Architecture 🏛️
 
-This document explains the codebase structure and design patterns for the HANGOUT Flutter application.
-
----
-
-## 🏗️ High-Level Folders
-
-```text
-lib/
-├── main.dart          # Entry point & GoRouter configuration
-├── models/            # Data structures (Hangout, User, SeedData)
-├── screens/           # Full-page widgets (Map, Feed, Chat, etc.)
-│   ├── auth/          # Login & Authentication screens
-├── services/          # Business logic & Firebase APIs
-├── theme/             # Global colors, typography, & UI tokens
-└── widgets/           # Global reusable components
-```
+This document details the technical implementation and social logic behind the HANGOUT platform.
 
 ---
 
-## 🛤️ Navigation (GoRouter)
-
-We use **`go_router`** to handle all routing, including deep-linking and responsive shell layouts.
-
-### **The App Shell**
-All main navigation tabs (Map, Feed, Chat, Profile) are wrapped in a **`ShellRoute`**.
-- **Mobile**: The shell provides a `BottomNavigationBar`.
-- **Desktop**: The shell provides a persistent `Sidebar`.
-
-### **Liquid Transitions**
-We use `CustomTransitionPage` in `main.dart` to provide uniform fade-and-slide transitions between routes.
+## 💎 Design Philosophy: "Social Security"
+The architecture is built around three core layers of safety and trust:
+1. **Identity Layer**: Verified Google/Email Auth + 4-Step Onboarding.
+2. **Privacy Layer**: Zone Privacy Mapping (500m fuzzy zones).
+3. **Behavior Layer**: The Trust Score Engine.
 
 ---
 
-## ⚡ State Management (Provider)
+## 📦 Data Architecture (The Super-Models)
+All models in `lib/models/` follow the **Super-Model Pattern**:
+- **Atomic Serialization**: `fromFirestore` and `toMap` for bidirectional sync.
+- **Immutability**: `copyWith` for safe state transitions.
+- **Embedded Logic**: Models contain their own display logic (e.g., `HangoutModel` handles its own expiry checks).
 
-We use the **`Provider`** package for state management.
-- **`AuthService`**: Manages the user's login state and Firebase Auth integration.
-- **Global Providers**: Injected at the root in `main.dart` to ensure availability across all screens.
-
----
-
-## 🎨 Design System & Theming
-
-### **Color Tokens**
-All colors must be pulled from `AppColors` in `lib/theme/app_theme.dart`.
-- `primary`: Trust Blue (`#2563EB`)
-- `secondary`: Social Orange (`#F97316`)
-- `surface`: Pure White / Soft Gray interaction layer.
-
-### **Responsiveness**
-Avoid hardcoded widths. Use **`LayoutBuilder`** and check screen constraints:
-- `isWide = constraints.maxWidth > 800`
-- Use this flag to toggle between Grid View (Desktop) and List View (Mobile).
+### **Core Models:**
+- `UserModel`: Profile, Trust Score, and Onboarding state.
+- `HangoutModel`: Multi-tier location data, participant tracking, and activity categorization.
+- `RatingModel`: Peer-review data points.
 
 ---
 
-## 🔥 Backend: Firebase
-
-- **Authentication**: Google Sign-In & Phone Auth.
-- **Database**: Cloud Firestore for real-time hangout data and chat messages.
-- **Hosting**: Firebase Hosting (CI/CD automated via GitHub Actions).
-
----
-
-## 🛡️ Best Practices for Contributors
-- **Atomic Commits**: Keep your commits small and focused.
-- **0-Lint Policy**: Run `flutter analyze` before pushing.
-- **Documentation**: If you create a new Service or Model, add comments explaining it.
+## ⚙️ Logic Engines (The Services)
+Services in `lib/services/` are stateless, single-responsibility units:
+- **`TrustService`**: Recalculates user reputation using weighted averages and penalty logic.
+- **`LocationService`**: Handles geofencing and distance calculations.
+- **`HangoutService`**: Uses **Firestore Transactions** for atomic join/leave operations (prevents over-capacity).
+- **`NotificationService`**: Manages FCM and Local Notification triggers.
 
 ---
 
-built by Shrinath Shukla & The HANGOUT Team. 🥂🦾✨
+## 🎨 UI Architecture (Atomic Glassmorphism)
+The UI is composed from an **Atomic Widget Library** (`lib/widgets/`):
+- `GlassCard`: The foundation.
+- `TrustBadge`: Contextual trust signaling.
+- `ActivityChip`: Visual categorization.
+- `HangoutCard`: The primary discovery unit.
+
+---
+
+## 🚦 Navigation & Guarding
+We use **GoRouter** with a master `AppShell`:
+- **Auth Guard**: Splash screen redirects to `/login` if unauthenticated.
+- **Onboarding Guard**: Redirects to `/onboarding` if profile is incomplete.
+- **Deep-Linking**: Fully supported for `/hangout/:id`.
+
+---
+
+## 🌍 DevOps & Deployment
+- **Repository**: GitHub (SHUKLASHRI/hangout)
+- **CI/CD**: GitHub Actions (Fireship-style deployment on push to `master`).
+- **Infrastructure**: Firebase (Auth, Firestore, Hosting, FCM).
+
+---
+
+*"Architected for trust, built for speed."* ⚡🦾

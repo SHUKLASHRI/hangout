@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../../theme/app_theme.dart';
+import '../core/theme.dart';
+import '../widgets/glass_card.dart';
 
 class ChatScreen extends StatelessWidget {
-  final String id;
-  const ChatScreen({super.key, required this.id});
+  final String? id;
+  const ChatScreen({super.key, this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +31,10 @@ class ChatScreen extends StatelessWidget {
               ],
             ),
           ),
-          Container(
+          GlassCard(
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: AppColors.surface,
-              border: Border(top: BorderSide(color: AppColors.border)),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+            tintColor: AppColors.trustBlue,
             child: SafeArea(
               child: Row(
                 children: [
@@ -43,7 +42,7 @@ class ChatScreen extends StatelessWidget {
                     child: TextField(
                       decoration: InputDecoration(
                         hintText: "Type a message...",
-                        fillColor: AppColors.background,
+                        fillColor: Colors.white.withValues(alpha: 0.5),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       ),
@@ -51,7 +50,7 @@ class ChatScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   CircleAvatar(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: AppColors.socialOrange,
                     child: IconButton(
                       icon: const Icon(LucideIcons.send, color: Colors.white, size: 20),
                       onPressed: () {},

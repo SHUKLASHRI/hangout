@@ -1,7 +1,10 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import '../theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import '../core/theme.dart';
+import '../providers/app_state.dart';
 
 class AppShell extends StatelessWidget {
   final Widget child;
@@ -10,118 +13,171 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<AppStateProvider>();
+    final routerState = GoRouterState.of(context);
+    
+    // Keep provider in sync with router
+    state.syncIndexWithRoute(routerState.matchedLocation);
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isDesktop = constraints.maxWidth > 900;
+        final bool isDesktop = constraints.maxWidth > 800;
 
         return Scaffold(
           body: Row(
             children: [
-              if (isDesktop) _buildSidebar(context),
+              if (isDesktop) _buildSidebar(context, state),
               Expanded(child: child),
             ],
           ),
-          bottomNavigationBar: isDesktop ? null : _buildBottomNavBar(context),
+          // M1-B1: The +Create tab triggers a modal, but for the Shell we use a FAB on mobile
+          floatingActionButton: isDesktop ? null : _buildFAB(context),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          bottomNavigationBar: isDesktop ? null : _buildGlassBottomNavBar(context, state),
         );
       },
     );
   }
 
-  Widget _buildSidebar(BuildContext context) {
-    final String location = GoRouterState.of(context).uri.path;
+  Widget _buildFAB(BuildContext context) {
+    return Container(
+      height: 64,
+      width: 64,
+      decoration: BoxDecoration(
+        color: AppColors.socialOrange,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.socialOrange.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: IconButton(
+        icon: const Icon(LucideIcons.plus, color: Colors.white, size: 32),
+        onPressed: () => context.push('/create'),
+      ),
+    );
+  }
 
+  Widget _buildGlassBottomNavBar(BuildContext context, AppStateProvider state) {
+    return Container(
+      height: 90,
+      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.trustBlue.withValues(alpha: 0.85),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _navItem(context, state, 0, LucideIcons.map, 'Map'),
+                _navItem(context, state, 1, LucideIcons.layoutList, 'Feed'),
+                const SizedBox(width: 40), // Spacer for FAB
+                _navItem(context, state, 2, LucideIcons.messageSquare, 'Chat'),
+                _navItem(context, state, 3, LucideIcons.user, 'Profile'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _navItem(BuildContext context, AppStateProvider state, int index, IconData icon, String label) {
+    final isSelected = state.currentIndex == index;
+    return GestureDetector(
+      onTap: () => context.go(state.getRoutePath(index)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: isSelected ? AppColors.socialOrange : Colors.white.withValues(alpha: 0.5),
+            size: 26,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.5),
+              fontSize: 10,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSidebar(BuildContext context, AppStateProvider state) {
     return Container(
       width: 280,
       decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(right: BorderSide(color: AppColors.border)),
+        color: AppColors.trustBlue,
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 20)],
       ),
       child: Column(
         children: [
           const Padding(
-            padding: EdgeInsets.all(32.0),
+            padding: EdgeInsets.symmetric(vertical: 60),
             child: Text(
               'HANGOUT',
               style: TextStyle(
-                color: AppColors.primary,
-                fontSize: 24,
+                color: Colors.white,
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 2,
+                letterSpacing: 4,
               ),
             ),
           ),
-          _sidebarItem(context, 'Explore', LucideIcons.map, '/', location == '/'),
-          _sidebarItem(context, 'Feed', LucideIcons.layoutList, '/feed', location == '/feed'),
-          _sidebarItem(context, 'Chats', LucideIcons.messageSquare, '/chats', location == '/chats'),
-          _sidebarItem(context, 'Profile', LucideIcons.user, '/profile', location == '/profile'),
+          _sidebarItem(context, state, 0, LucideIcons.map, 'Map Discovery'),
+          _sidebarItem(context, state, 1, LucideIcons.layoutList, 'Social Feed'),
+          _sidebarItem(context, state, 2, LucideIcons.messageSquare, 'Realtime Chat'),
+          _sidebarItem(context, state, 3, LucideIcons.user, 'Team Profile'),
           const Spacer(),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(24.0),
             child: ElevatedButton.icon(
               onPressed: () {},
-              icon: const Icon(LucideIcons.plus, size: 18),
-              label: const Text('Host Hangout'),
+              icon: const Icon(LucideIcons.plus),
+              label: const Text('Host New Hangout'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.secondary,
-                minimumSize: const Size.fromHeight(50),
+                backgroundColor: AppColors.socialOrange,
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(60),
               ),
             ),
           ),
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 
-  Widget _sidebarItem(BuildContext context, String label, IconData icon, String path, bool isSelected) {
+  Widget _sidebarItem(BuildContext context, AppStateProvider state, int index, IconData icon, String label) {
+    final isSelected = state.currentIndex == index;
     return ListTile(
-      leading: Icon(icon, color: isSelected ? AppColors.primary : AppColors.textSecondary),
+      leading: Icon(
+        icon,
+        color: isSelected ? AppColors.socialOrange : Colors.white.withValues(alpha: 0.6),
+      ),
       title: Text(
         label,
         style: TextStyle(
-          color: isSelected ? AppColors.primary : AppColors.textPrimary,
+          color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.6),
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
       ),
-      selected: isSelected,
-      onTap: () => context.go(path),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-    );
-  }
-
-  Widget _buildBottomNavBar(BuildContext context) {
-    final String location = GoRouterState.of(context).uri.path;
-    int currentIndex = 0;
-    if (location == '/feed') currentIndex = 1;
-    if (location == '/chats') currentIndex = 2;
-    if (location == '/profile') currentIndex = 3;
-
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border)),
-      ),
-      child: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          switch (index) {
-            case 0: context.go('/'); break;
-            case 1: context.go('/feed'); break;
-            case 2: context.go('/chats'); break;
-            case 3: context.go('/profile'); break;
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppColors.surface,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
-        elevation: 0,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(LucideIcons.map), label: 'Explore'),
-          BottomNavigationBarItem(icon: Icon(LucideIcons.layoutList), label: 'Feed'),
-          BottomNavigationBarItem(icon: Icon(LucideIcons.messageSquare), label: 'Chats'),
-          BottomNavigationBarItem(icon: Icon(LucideIcons.user), label: 'Profile'),
-        ],
-      ),
+      onTap: () => context.go(state.getRoutePath(index)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
     );
   }
 }

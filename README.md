@@ -1,63 +1,67 @@
 # HANGOUT 🥂✨
 
-A premium social discovery app built with Flutter. HANGOUT helps people connect through nearby activities in a safe, social, and trustworthy environment.
+A premium, trust-first social discovery platform built with Flutter. HANGOUT helps people connect through nearby activities in a safe, geofenced, and verified environment.
 
 ---
 
-## 🚀 The Live Experience
-- **Production URL**: [hangout-72488.web.app](https://hangout-72488.web.app)
-- **Status**: CI/CD Active (Automatic updates on push)
+## 🏆 The 20-Generation Mastery Sprint
+This repository has been fully architected and implemented over a **20-Generation AI Sprint**, resulting in a production-ready MVP with high-fidelity UI and a robust data engine.
 
----
-
-## 🎨 The Product Vision
-
-HANGOUT is designed with **Psychology-Driven UX**:
-- 🔵 **Trust Base**: Deep Blue for reliability and safety.
-- 🟠 **Social Energy**: Warm Orange for "I'm Free" and call-to-action buttons.
-- ⚪ **Clean UX**: Light Gray palette for a premium, non-dating feel.
+### **Core Pillars**
+- 🛡️ **Verified Trust**: Proprietary Trust Score Engine (4.0 Base) with late-cancellation penalties.
+- 🗺️ **Privacy-First Mapping**: 500m "Approximate Zone" circles that reveal exact meeting points only to participants.
+- ✨ **Premium Aesthetics**: High-fidelity glassmorphism, liquid transitions, and Outfit typography.
+- 🚀 **E2E Automation**: Automated CI/CD pipeline via GitHub Actions and Firebase Hosting.
 
 ---
 
 ## 🛠️ Technical Stack
-- **Frontend**: Flutter (Web, iOS, Android)
-- **Architecture**: GoRouter (ShellRoutes) + Provider
-- **Backend**: Firebase Auth + Firestore
-- **UI/UX**: Glassmorphism, Staggered Animations, Lucide Icons
+- **Frontend**: Flutter (Cross-platform Web/Mobile)
+- **State**: Provider + ProxyProvider (Reactive Auth & Hangout Streams)
+- **Navigation**: GoRouter with Shell Architecture & Navigation Guards
+- **Backend**: Firebase Auth (Google/Email), Cloud Firestore, FCM
+- **Architecture**: Domain-Driven Design with "Super-Models" (Serializable & Atomic)
 
 ---
 
-## 👨‍💻 Development Center
-We are now a team-driven project! Please refer to these core documents:
-- **[PRD.md](./PRD.md)**: Product vision, features, and the live roadmap.
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Technical guide on how we build (GoRouter, Provider, Firebase).
-- **[CONTRIBUTING.md](./CONTRIBUTING.md)**: Rules for code style, theme tokens, and branching.
-
-### **Team Structure & Roles**
-- **Lead Developer**: Shrinath Shukla (@SHUKLASHRI) - *Gatekeeper & Reviewer*
-- **Utkarsh**: Backend & Logic Architect - *Focus: `lib/services`, `lib/models`, Firebase Integration*
-- **Lavi**: UI/UX & Interaction Specialist - *Focus: `lib/screens`, `lib/widgets`, Theme Polish*
-- **Khushboo**: Mapping & Location Lead - *Focus: `lib/screens/map_screen.dart`, Geolocation*
-
-### **Core Workflows**
-1.  **Feature Branches**: Everyone works on their own branch (`feature/your-task`).
-2.  **Pull Requests**: All features must be merged via PR and reviewed by Sagar.
-3.  **Automatic Deployment**: Every push to `master` triggers a GitHub Action to deploy to Firebase Hosting.
+## 📂 Project Structure
+- `lib/core/`: The Hub. Centralized theme, routing, and constants.
+- `lib/models/`: Super-Models with Firestore serialization logic.
+- `lib/providers/`: Reactive state managers.
+- `lib/services/`: Atomic business logic (Trust, Location, Hangouts).
+- `lib/widgets/`: Atomic Widget Library (GlassCard, TrustBadge, HangoutCard).
+- `lib/screens/`: Feature-complete screens (Map, Feed, Onboarding, Auth).
 
 ---
 
-## 🏁 Quick Start
-For a full guide on environment setup, Git commands, and deployment, see the **[HANDBOOK.md](./HANDBOOK.md)**.
+## 🚀 Getting Started
 
+### **1. Setup Environment**
 ```bash
-# 1. Clone & Setup
 git clone https://github.com/SHUKLASHRI/hangout.git
 cd hangout
 flutter pub get
-
-# 2. Run
-flutter run -d chrome
 ```
 
+### **2. Development Mode**
+```bash
+flutter run -d chrome # or your emulator
+```
 
-built with ❤️ by the HANGOUT Team.
+### **3. Production Build**
+```bash
+flutter build web --release
+firebase deploy
+```
+
+---
+
+## 📄 Documentation
+For deep dives into the system architecture and social logic:
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Logic behind Trust Scores and Zone Privacy.
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)**: Coding standards and theme tokens.
+
+---
+
+Built with 🧡 by **Shrinath Shukla** & The HANGOUT Team.
+*"Real connections, zero pressure."*
