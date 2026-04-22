@@ -109,9 +109,9 @@ class _MapScreenState extends State<MapScreen> {
               LiquidGlass(
                 width: 200,
                 height: 50,
-                position: LiquidGlassAlignPosition(
+                position: const LiquidGlassAlignPosition(
                   alignment: Alignment.topLeft,
-                  offset: const Offset(20, 50),
+                  margin: EdgeInsets.only(left: 20, top: 50),
                 ),
                 magnification: 1.1,
                 distortion: 0.1,
@@ -133,9 +133,9 @@ class _MapScreenState extends State<MapScreen> {
             LiquidGlass(
               width: 56,
               height: 128,
-              position: LiquidGlassAlignPosition(
+              position: const LiquidGlassAlignPosition(
                 alignment: Alignment.bottomRight,
-                offset: const Offset(-20, -120),
+                margin: EdgeInsets.only(right: 20, bottom: 120),
               ),
               magnification: 1.2,
               distortion: 0.2,

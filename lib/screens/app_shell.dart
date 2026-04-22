@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -42,9 +41,9 @@ class AppShell extends StatelessWidget {
               LiquidGlass(
                 width: constraints.maxWidth - 32,
                 height: 90,
-                position: LiquidGlassAlignPosition(
+                position: const LiquidGlassAlignPosition(
                   alignment: Alignment.bottomCenter,
-                  offset: const Offset(0, -20),
+                  margin: EdgeInsets.only(bottom: 20),
                 ),
                 magnification: 1.1,
                 distortion: 0.15,
