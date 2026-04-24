@@ -1,1 +1,0 @@
- C:\\Users\\sagar\\.gemini\\antigravity\\scratch\\hangout\\build\\web\\manifest.json:  C:\\Users\\sagar\\.gemini\\antigravity\\scratch\\hangout\\web\\index.html C:\\Users\\sagar\\.gemini\\antigravity\\scratch\\hangout\\web\\manifest.json
