@@ -29,6 +29,13 @@ class AppColors {
   static const Color success = safetyGreen;
 }
 
+class AppConstants {
+  static const double radiusCard = 20.0;
+  static const double radiusChip = 12.0;
+  static const double paddingPage = 20.0;
+  static const double animFast = 200.0; // as ms
+}
+
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(

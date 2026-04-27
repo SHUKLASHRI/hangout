@@ -20,7 +20,16 @@ void main() async {
 
   // Initialize Firebase — must succeed for auth to work
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyDummyKey_1234567890",
+        appId: "1:1234567890:web:abcdef1234567890",
+        messagingSenderId: "1234567890",
+        projectId: "hangout-dummy-project",
+        authDomain: "hangout-dummy.firebaseapp.com",
+        storageBucket: "hangout-dummy.appspot.com",
+      ),
+    );
   } catch (e) {
     debugPrint('[HANGOUT] Firebase init error: $e');
     // App will still launch; auth provider handles the error state gracefully

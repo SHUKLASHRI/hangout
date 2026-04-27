@@ -47,11 +47,6 @@ class AppRouter {
 
       // Hangout Core (G14, G15)
       GoRoute(
-        path: '/create',
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const CreateHangoutScreen(),
-      ),
-      GoRoute(
         path: '/hangout/:id',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => HangoutDetailScreen(
@@ -93,6 +88,10 @@ class AppRouter {
               state,
               const ProfileScreen(),
             ),
+          ),
+          GoRoute(
+            path: '/create',
+            builder: (context, state) => const CreateHangoutScreen(),
           ),
         ],
       ),
