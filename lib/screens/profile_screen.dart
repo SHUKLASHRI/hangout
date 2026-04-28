@@ -69,7 +69,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               _buildProfileOption(
-                icon: LucideIcons.circleHelp,
+                icon: LucideIcons.lifeBuoy,
                 label: 'Help & Support',
                 onTap: () {},
               ),
