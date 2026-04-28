@@ -88,7 +88,6 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final hangoutProvider = context.watch<HangoutProvider>();
-    final locationProvider = context.watch<LocationProvider>();
 
     // Side effect - trigger marker generation when hangouts change
     WidgetsBinding.instance.addPostFrameCallback((_) {
