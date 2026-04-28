@@ -4,11 +4,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/hangout_model.dart';
 import '../providers/hangout_provider.dart';
 import '../providers/location_provider.dart';
 import '../widgets/map/marker_generator.dart';
 import '../widgets/map/hangout_marker_widget.dart';
+import '../widgets/liquid_glass_card.dart';
 import '../core/theme.dart';
 
 class MapScreen extends StatefulWidget {
@@ -19,7 +21,6 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  final Completer<GoogleMapController> _controller = Completer();
   final Set<Marker> _markers = {};
   final Set<Circle> _circles = {};
   bool _isGeneratingMarkers = false;
@@ -94,14 +95,6 @@ class _MapScreenState extends State<MapScreen> {
       _updateMapElements(hangoutProvider.hangouts);
     });
 
-    final initialPosition = CameraPosition(
-      target: LatLng(
-        locationProvider.currentPosition?.latitude ?? 20.5937,
-        locationProvider.currentPosition?.longitude ?? 78.9629, // Default: India center
-      ),
-      zoom: locationProvider.currentPosition != null ? 14 : 5,
-    );
-
     return Scaffold(
       body: Stack(
         children: [
@@ -144,7 +137,7 @@ class _MapScreenState extends State<MapScreen> {
           // Glass status chip — simple overlay, BackdropFilter-based (web-safe)
           if (_isGeneratingMarkers)
             Positioned(
-              top: 60,
+              top: 110,
               left: 0,
               right: 0,
               child: Center(
