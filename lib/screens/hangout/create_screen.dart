@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme.dart';
 import '../../widgets/liquid_glass_card.dart';
 import '../../widgets/shared/app_inputs.dart';
+import '../../widgets/overlays/notifications_overlay.dart';
 
 class CreateHangoutScreen extends StatefulWidget {
   const CreateHangoutScreen({super.key});
@@ -169,8 +170,15 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
           ),
         ),
         IconButton(
-          onPressed: () {},
-          icon: const Icon(LucideIcons.messageSquare, color: Color(0xFF667085)),
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              backgroundColor: Colors.transparent,
+              isScrollControlled: true,
+              builder: (context) => const NotificationsOverlay(),
+            );
+          },
+          icon: const Icon(LucideIcons.bell, color: Color(0xFF667085)),
         ),
       ],
     );

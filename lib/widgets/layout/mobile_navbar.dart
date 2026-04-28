@@ -13,29 +13,45 @@ class MobileNavbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 90,
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 30),
-      child: LiquidGlassCard(
-        borderRadius: BorderRadius.circular(45),
-        opacity: 0.1,
-        blur: 15,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(45),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
+      height: 100,
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        clipBehavior: Clip.none,
+        children: [
+          // Glass Bar
+          Container(
+            height: 70,
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            child: LiquidGlassCard(
+              borderRadius: BorderRadius.circular(35),
+              opacity: 0.1,
+              blur: 15,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(35),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _navItem(context, 0, LucideIcons.house, 'Home'),
+                    _navItem(context, 1, LucideIcons.search, 'Explore'),
+                    const SizedBox(width: 60), // Space for center button
+                    _navItem(context, 2, LucideIcons.messageSquare, 'Chat'),
+                    _navItem(context, 3, LucideIcons.user, 'Profile'),
+                  ],
+                ),
+              ),
+            ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _navItem(context, 0, LucideIcons.house, 'Home'),
-              _navItem(context, 1, LucideIcons.search, 'Explore'),
-              _buildCenterAction(context),
-              _navItem(context, 2, LucideIcons.messageSquare, 'Chat'),
-              _navItem(context, 3, LucideIcons.user, 'Profile'),
-            ],
+          // Floating Center Action
+          Positioned(
+            top: 0,
+            child: _buildCenterAction(context),
           ),
-        ),
+        ],
       ),
     );
   }
