@@ -73,7 +73,7 @@ class _ChatScreenState extends State<ChatScreen> {
     required Color color,
   }) {
     return LiquidGlassCard(
-      borderRadius: 16,
+      borderRadius: BorderRadius.circular(16),
       child: ListTile(
         onTap: () => setState(() => _selectedChatId = title),
         leading: Container(
@@ -156,7 +156,7 @@ class ChatDetailScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: LiquidGlassCard(
-        borderRadius: 24,
+        borderRadius: BorderRadius.circular(24),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(

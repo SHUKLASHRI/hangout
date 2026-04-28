@@ -151,7 +151,7 @@ class LoginScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return LiquidGlassCard(
-      borderRadius: 40,
+      borderRadius: BorderRadius.circular(40),
       opacity: 0.03,
       blur: 4,
       borderColor: Colors.black.withValues(alpha: 0.05),

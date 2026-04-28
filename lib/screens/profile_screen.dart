@@ -102,7 +102,7 @@ class ProfileScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return LiquidGlassCard(
-      borderRadius: 16,
+      borderRadius: BorderRadius.circular(16),
       child: ListTile(
         onTap: onTap,
         leading: Container(

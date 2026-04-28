@@ -230,57 +230,6 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
     );
   }
 
-  Widget _buildTextField({
-    TextEditingController? controller,
-    required String hint,
-    IconData? prefixIcon,
-    int maxLines = 1,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(maxLines > 1 ? 24 : 40),
-        border: Border.all(color: const Color(0xFFEAECF0)),
-      ),
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: GoogleFonts.inter(color: const Color(0xFF98A2B3)),
-          prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: const Color(0xFF667085), size: 20) : null,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          border: InputBorder.none,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPickerField({required IconData icon, required String text, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(40),
-          border: Border.all(color: const Color(0xFFEAECF0)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              text,
-              style: GoogleFonts.inter(color: const Color(0xFF667085)),
-            ),
-            Icon(icon, color: const Color(0xFF667085), size: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildPrivateToggle() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -326,7 +275,7 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
 
   Widget _buildSubmitButton() {
     return LiquidGlassCard(
-      borderRadius: 40,
+      borderRadius: BorderRadius.circular(40),
       opacity: 0.1,
       blur: 10,
       child: Container(
