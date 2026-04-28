@@ -105,20 +105,40 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Map — always the base layer
-          GoogleMap(
-            mapType: MapType.normal,
-            initialCameraPosition: initialPosition,
-            markers: _markers,
-            circles: _circles,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            onMapCreated: (GoogleMapController controller) {
-              if (!_controller.isCompleted) {
-                _controller.complete(controller);
-              }
-            },
+          // High-quality Map Placeholder (Zoomable)
+          InteractiveViewer(
+            maxScale: 5.0,
+            child: Image.asset(
+              'assets/images/map_placeholder.png',
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          // Overlay for Placeholder Info
+          Positioned(
+            top: 60,
+            left: 20,
+            right: 20,
+            child: Center(
+              child: LiquidGlassCard(
+                borderRadius: BorderRadius.circular(20),
+                opacity: 0.8,
+                blur: 10,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    '📍 Map Preview (Integration Pending)',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.trustBlue,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
 
           // Glass status chip — simple overlay, BackdropFilter-based (web-safe)
@@ -172,17 +192,10 @@ class _MapScreenState extends State<MapScreen> {
                 _glassActionButton(
                   icon: Icons.my_location_rounded,
                   tooltip: 'My Location',
-                  onTap: () async {
-                    if (!_controller.isCompleted) return;
-                    final controller = await _controller.future;
-                    if (locationProvider.currentPosition != null) {
-                      controller.animateCamera(CameraUpdate.newLatLng(
-                        LatLng(
-                          locationProvider.currentPosition!.latitude,
-                          locationProvider.currentPosition!.longitude,
-                        ),
-                      ));
-                    }
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Interactive Map Integration Coming Soon!')),
+                    );
                   },
                 ),
               ],
