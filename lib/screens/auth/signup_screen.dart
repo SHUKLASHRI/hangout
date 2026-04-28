@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
-import '../../widgets/glass_card.dart';
+import '../../widgets/liquid_glass_card.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -56,9 +56,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       
                       const SizedBox(height: 48),
 
-                      GlassCard(
+                      LiquidGlassCard(
                         padding: const EdgeInsets.all(24),
-                        tintColor: AppColors.trustBlue,
+                        color: AppColors.trustBlue,
                         child: Column(
                           children: [
                             TextField(

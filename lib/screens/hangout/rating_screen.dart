@@ -4,7 +4,7 @@ import '../../models/hangout_model.dart';
 import '../../services/trust_service.dart';
 import '../../core/theme.dart';
 import '../../core/error_handler.dart';
-import '../../widgets/glass_card.dart';
+import '../../widgets/liquid_glass_card.dart';
 
 class RatingScreen extends StatefulWidget {
   final HangoutModel hangout;
@@ -99,7 +99,7 @@ class _RatingScreenState extends State<RatingScreen> {
             
             const SizedBox(height: 48),
             
-            GlassCard(
+            LiquidGlassCard(
               padding: const EdgeInsets.all(16),
               child: TextField(
                 controller: _commentController,

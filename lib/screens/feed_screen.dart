@@ -4,7 +4,7 @@ import '../models/seed_data.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import '../widgets/glass_card.dart';
+import '../widgets/liquid_glass_card.dart';
 
 class FeedScreen extends StatelessWidget {
   const FeedScreen({super.key});
@@ -71,9 +71,9 @@ class FeedScreen extends StatelessWidget {
   Widget _buildFeedCard(BuildContext context, dynamic hangout, bool isWide) {
     return GestureDetector(
       onTap: () => context.push('/hangout/${hangout.id}'),
-      child: GlassCard(
+      child: LiquidGlassCard(
         padding: EdgeInsets.zero,
-        tintColor: AppColors.trustBlue,
+        color: AppColors.trustBlue,
         child: isWide ? _buildVerticalLayout(hangout) : _buildHorizontalLayout(hangout),
       ),
     );

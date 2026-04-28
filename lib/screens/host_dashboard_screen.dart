@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme.dart';
-import '../widgets/glass_card.dart';
+import '../widgets/liquid_glass_card.dart';
 
 class HostDashboardScreen extends StatelessWidget {
   final String id;
@@ -46,9 +46,9 @@ class HostDashboardScreen extends StatelessWidget {
   Widget _buildParticipantItem(String name, bool isPresent) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: GlassCard(
+      child: LiquidGlassCard(
         padding: const EdgeInsets.all(16),
-        tintColor: isPresent ? AppColors.safetyGreen : AppColors.trustBlue,
+        color: isPresent ? AppColors.safetyGreen : AppColors.trustBlue,
         child: Row(
           children: [
             CircleAvatar(

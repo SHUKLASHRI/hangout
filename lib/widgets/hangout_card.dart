@@ -3,7 +3,7 @@ import '../models/hangout_model.dart';
 import '../core/theme.dart';
 import 'activity_chip.dart';
 import 'trust_badge.dart';
-import 'glass_card.dart';
+import 'liquid_glass_card.dart';
 
 class HangoutCard extends StatelessWidget {
   final HangoutModel hangout;
@@ -22,9 +22,9 @@ class HangoutCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: GlassCard(
+      child: LiquidGlassCard(
         padding: const EdgeInsets.all(16),
-        tintColor: AppColors.trustBlue, // Base trust for feed items
+        color: AppColors.trustBlue, // Base trust for feed items
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

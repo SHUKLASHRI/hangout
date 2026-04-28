@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme.dart';
 import '../../widgets/liquid_glass_card.dart';
+import '../../widgets/shared/app_inputs.dart';
 
 class CreateHangoutScreen extends StatefulWidget {
   const CreateHangoutScreen({super.key});
@@ -67,7 +68,7 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
               
               // Form Fields
               _buildLabel('Hangout Name'),
-              _buildTextField(
+              AppTextField(
                 controller: _nameController,
                 hint: 'e.g., Weekend Hike at Mount Tam',
               ),
@@ -81,7 +82,7 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildLabel('Date'),
-                        _buildPickerField(
+                        AppPickerField(
                           icon: LucideIcons.calendar,
                           text: _selectedDate == null ? 'mm/dd/yyyy' : '${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}',
                           onTap: _pickDate,
@@ -95,7 +96,7 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildLabel('Time'),
-                        _buildPickerField(
+                        AppPickerField(
                           icon: LucideIcons.clock,
                           text: _selectedTime == null ? '--:-- --' : _selectedTime!.format(context),
                           onTap: _pickTime,
@@ -109,7 +110,7 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
               const SizedBox(height: 24),
               
               _buildLabel('Location'),
-              _buildTextField(
+              AppTextField(
                 hint: 'Search places...',
                 prefixIcon: LucideIcons.mapPin,
               ),
@@ -117,7 +118,7 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
               const SizedBox(height: 24),
               
               _buildLabel('Description'),
-              _buildTextField(
+              AppTextField(
                 controller: _descController,
                 hint: 'What are we doing? Any special instructions?',
                 maxLines: 4,

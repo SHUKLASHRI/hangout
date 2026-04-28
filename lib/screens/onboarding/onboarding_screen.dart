@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme.dart';
-import '../../widgets/glass_card.dart';
+import '../../widgets/liquid_glass_card.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/firestore_service.dart';
 
@@ -209,9 +209,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 24),
           const Text("SAFETY FIRST", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2)),
           const SizedBox(height: 32),
-          GlassCard(
+          LiquidGlassCard(
             padding: const EdgeInsets.all(16),
-            tintColor: AppColors.safetyGreen,
+            color: AppColors.safetyGreen,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 200),
               child: const SingleChildScrollView(

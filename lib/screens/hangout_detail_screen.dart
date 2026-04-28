@@ -7,7 +7,7 @@ import '../../models/hangout_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/hangout_provider.dart';
 import '../../core/theme.dart';
-import '../../widgets/glass_card.dart';
+import '../../widgets/liquid_glass_card.dart';
 import '../../widgets/trust_badge.dart';
 import '../../widgets/activity_chip.dart';
 import 'hangout/rating_screen.dart';
@@ -99,7 +99,7 @@ class HangoutDetailScreen extends StatelessWidget {
   }
 
   Widget _buildHostSection(HangoutModel hangout) {
-    return GlassCard(
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
@@ -161,9 +161,9 @@ class HangoutDetailScreen extends StatelessWidget {
   }
 
   Widget _buildLocationRevealSection(HangoutModel hangout, bool isRevealed) {
-    return GlassCard(
+    return LiquidGlassCard(
       padding: const EdgeInsets.all(20),
-      tintColor: isRevealed ? AppColors.safetyGreen : AppColors.socialOrange,
+      color: isRevealed ? AppColors.safetyGreen : AppColors.socialOrange,
       child: Row(
         children: [
           Icon(
