@@ -38,7 +38,7 @@ class NotificationsOverlay extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           _buildNotificationItem(
-            icon: LucideIcons.checkCircle2,
+            icon: LucideIcons.circleCheck,
             color: AppColors.safetyGreen,
             title: 'Hangout Confirmed',
             message: 'Your Strategy Night hangout has been approved by the host.',
