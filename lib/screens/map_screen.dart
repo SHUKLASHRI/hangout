@@ -97,15 +97,34 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // High-quality Map Placeholder (Zoomable)
-          InteractiveViewer(
-            maxScale: 5.0,
-            child: Image.asset(
-              'assets/images/map_placeholder.png',
-              width: double.infinity,
-              height: double.infinity,
-              fit: BoxFit.cover,
-            ),
+          // Animated Map Landing (World -> India)
+          Stack(
+            children: [
+              // World Map (Background)
+              Image.asset(
+                'assets/images/world_map.png',
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+              ).animate().fadeOut(delay: 1.5.seconds, duration: 1.seconds),
+
+              // Detailed India Map (Foreground)
+              Image.asset(
+                'assets/images/map_placeholder.png',
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+              )
+                  .animate()
+                  .fadeIn(delay: 1.5.seconds, duration: 1.seconds)
+                  .scale(
+                    begin: const Offset(0.3, 0.3),
+                    end: const Offset(1.0, 1.0),
+                    curve: Curves.easeOutQuart,
+                    duration: 2.seconds,
+                    delay: 1.seconds,
+                  ),
+            ],
           ),
 
           // Overlay for Placeholder Info
@@ -121,7 +140,7 @@ class _MapScreenState extends State<MapScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
-                    '📍 Map Preview (Integration Pending)',
+                    '🌏 Global to Local • India View',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -131,7 +150,7 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
             ),
-          ),
+          ).animate().fadeIn(delay: 3.seconds),
 
           // Glass status chip — simple overlay, BackdropFilter-based (web-safe)
           if (_isGeneratingMarkers)
