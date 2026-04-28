@@ -24,44 +24,46 @@ class AppShell extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: AppColors.background,
-          body: Row(
+          body: Stack(
             children: [
-              if (isDesktop) _buildSidebar(context, state),
-              Expanded(child: child),
+              Row(
+                children: [
+                  if (isDesktop) _buildSidebar(context, state),
+                  Expanded(child: child),
+                ],
+              ),
+              if (!isDesktop)
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 16,
+                  right: 20,
+                  child: _buildTopRightAlerts(context),
+                ),
             ],
           ),
-          floatingActionButton: isDesktop ? null : _buildFAB(context),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           bottomNavigationBar: isDesktop ? null : _buildGlassNavBar(context, state, constraints),
         );
       },
     );
   }
 
-  Widget _buildFAB(BuildContext context) {
-    return LiquidGlassCard(
-      borderRadius: 30,
-      opacity: 0.1,
-      blur: 10,
-      borderColor: AppColors.socialOrange.withValues(alpha: 0.3),
-      child: Container(
-        height: 60,
-        width: 60,
-        decoration: BoxDecoration(
-          color: AppColors.socialOrange,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.socialOrange.withValues(alpha: 0.4),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: IconButton(
-          icon: const Icon(LucideIcons.plus, color: Colors.white, size: 28),
-          onPressed: () => context.push('/create'),
-        ),
+  Widget _buildTopRightAlerts(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.8),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: IconButton(
+        icon: const Icon(LucideIcons.bell, color: AppColors.trustBlue),
+        onPressed: () {
+          // Open notifications
+        },
       ),
     );
   }
@@ -86,7 +88,7 @@ class AppShell extends StatelessWidget {
               _navItem(context, state, 0, LucideIcons.house, 'Home'),
               _navItem(context, state, 1, LucideIcons.search, 'Explore'),
               _buildCenterAction(context),
-              _navItem(context, state, 2, LucideIcons.bell, 'Alerts'),
+              _navItem(context, state, 2, LucideIcons.messageSquare, 'Chat'),
               _navItem(context, state, 3, LucideIcons.user, 'Profile'),
             ],
           ),
