@@ -4,7 +4,7 @@ import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/hangout/create_screen.dart';
-import '../screens/hangout_detail_screen.dart'; // Added for G15
+import '../screens/hangout_detail_screen.dart';
 import '../screens/feed_screen.dart';
 import '../screens/map_screen.dart';
 import '../screens/chat_screen.dart';
@@ -20,7 +20,6 @@ class AppRouter {
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/splash',
     routes: [
-      // Splash
       GoRoute(
         path: '/splash',
         pageBuilder: (context, state) => CustomTransitionPage(
@@ -30,8 +29,6 @@ class AppRouter {
           },
         ),
       ),
-      
-      // Auth & Onboarding
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
@@ -44,8 +41,6 @@ class AppRouter {
         path: '/onboarding',
         builder: (context, state) => const OnboardingScreen(),
       ),
-
-      // Hangout Core (G14, G15)
       GoRoute(
         path: '/hangout/:id',
         parentNavigatorKey: _rootNavigatorKey,
@@ -53,8 +48,13 @@ class AppRouter {
           id: state.pathParameters['id']!,
         ),
       ),
+      // Create Hangout is a full-screen experience, outside the shell to avoid navbar overlap
+      GoRoute(
+        path: '/create',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const CreateHangoutScreen(),
+      ),
       
-      // Main App Shell
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {
@@ -63,35 +63,19 @@ class AppRouter {
         routes: [
           GoRoute(
             path: '/map',
-            pageBuilder: (context, state) => _customFadeTransition(
-              state,
-              const MapScreen(),
-            ),
+            pageBuilder: (context, state) => _customFadeTransition(state, const MapScreen()),
           ),
           GoRoute(
             path: '/feed',
-            pageBuilder: (context, state) => _customFadeTransition(
-              state,
-              const FeedScreen(),
-            ),
+            pageBuilder: (context, state) => _customFadeTransition(state, const FeedScreen()),
           ),
           GoRoute(
             path: '/chat',
-            pageBuilder: (context, state) => _customFadeTransition(
-              state,
-              const ChatScreen(),
-            ),
+            pageBuilder: (context, state) => _customFadeTransition(state, const ChatScreen()),
           ),
           GoRoute(
             path: '/profile',
-            pageBuilder: (context, state) => _customFadeTransition(
-              state,
-              const ProfileScreen(),
-            ),
-          ),
-          GoRoute(
-            path: '/create',
-            builder: (context, state) => const CreateHangoutScreen(),
+            pageBuilder: (context, state) => _customFadeTransition(state, const ProfileScreen()),
           ),
         ],
       ),
