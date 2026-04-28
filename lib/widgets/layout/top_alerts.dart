@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme.dart';
 
+import '../overlays/notifications_overlay.dart';
+
 class TopAlerts extends StatelessWidget {
   const TopAlerts({super.key});
 
@@ -22,7 +24,11 @@ class TopAlerts extends StatelessWidget {
       child: IconButton(
         icon: const Icon(LucideIcons.bell, color: AppColors.trustBlue),
         onPressed: () {
-          // TODO: Implement notifications overlay
+          showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const NotificationsOverlay(),
+          );
         },
       ),
     );
