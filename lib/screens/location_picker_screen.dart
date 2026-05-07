@@ -36,7 +36,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   Future<void> _fetchAddress(LatLng position) async {
     setState(() => _isLoadingAddress = true);
-    const apiKey = 'AIzaSyBi5BWoJecW02xtyfD47oEpG5FUIKzUVsQ';
+    const apiKey = 'YOUR_API_KEY_HERE';
     final url = Uri.parse(
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$apiKey');
 
