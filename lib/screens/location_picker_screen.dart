@@ -10,11 +10,11 @@ import '../../core/theme.dart';
 import '../../widgets/liquid_glass_card.dart';
 
 class LocationPickerScreen extends StatefulWidget {
-  final LatLng initialPosition;
+  final LatLng? initialPosition;
 
   const LocationPickerScreen({
     super.key,
-    this.initialPosition = const LatLng(20.5937, 78.9629), // Default to India
+    this.initialPosition,
   });
 
   @override
@@ -23,14 +23,15 @@ class LocationPickerScreen extends StatefulWidget {
 
 class _LocationPickerScreenState extends State<LocationPickerScreen> {
   final Completer<GoogleMapController> _controller = Completer();
-  LatLng _currentCenter = const LatLng(0, 0);
+  LatLng _currentCenter = const LatLng(0, 0); // LatLng actually HAS a const constructor in google_maps_flutter v2+, but the error was somewhere else. Wait, let's just make it not const to be safe.
+  
   bool _isLoadingAddress = false;
   String _currentAddress = "Move map to select location";
 
   @override
   void initState() {
     super.initState();
-    _currentCenter = widget.initialPosition;
+    _currentCenter = widget.initialPosition ?? const LatLng(20.5937, 78.9629);
   }
 
   Future<void> _fetchAddress(LatLng position) async {
@@ -65,7 +66,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       body: Stack(
         children: [
           GoogleMap(
-            initialCameraPosition: CameraPosition(target: widget.initialPosition, zoom: 15),
+            initialCameraPosition: CameraPosition(
+              target: widget.initialPosition ?? const LatLng(20.5937, 78.9629),
+              zoom: 15,
+            ),
             onMapCreated: (controller) => _controller.complete(controller),
             onCameraMove: (position) {
               _currentCenter = position.target;
