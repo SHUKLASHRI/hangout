@@ -4,14 +4,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../models/hangout_model.dart';
 import '../providers/hangout_provider.dart';
 import '../providers/location_provider.dart';
 import '../widgets/map/marker_generator.dart';
 import '../widgets/map/hangout_marker_widget.dart';
-import '../widgets/liquid_glass_card.dart';
 import '../core/theme.dart';
 
 class MapScreen extends StatefulWidget {
