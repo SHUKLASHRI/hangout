@@ -22,12 +22,14 @@ void main() async {
   try {
     await Firebase.initializeApp(
       options: const FirebaseOptions(
-        apiKey: "AIzaSyDummyKey_1234567890",
-        appId: "1:1234567890:web:abcdef1234567890",
-        messagingSenderId: "1234567890",
-        projectId: "hangout-dummy-project",
-        authDomain: "hangout-dummy.firebaseapp.com",
-        storageBucket: "hangout-dummy.appspot.com",
+        apiKey: "AIzaSyCbXKjrR-ru2QQwciyPjbakCj8UNjB7Rfg",
+        appId: "1:250263355121:web:c9ecc70294aecba17bb350",
+        messagingSenderId: "250263355121",
+        projectId: "hangout-72488",
+        authDomain: "hangout-72488.firebaseapp.com",
+        storageBucket: "hangout-72488.firebasestorage.app",
+        databaseURL: "https://hangout-72488-default-rtdb.asia-southeast1.firebasedatabase.app",
+        measurementId: "G-H0FWBZNZJQ",
       ),
     );
   } catch (e) {
