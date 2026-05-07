@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import '../core/theme.dart';
-import '../models/seed_data.dart';
+import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import '../core/theme.dart';
+import '../models/hangout_model.dart';
+import '../providers/hangout_provider.dart';
 import '../widgets/liquid_glass_card.dart';
 
 class FeedScreen extends StatelessWidget {
@@ -13,62 +16,92 @@ class FeedScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final bool isWide = constraints.maxWidth > 800;
-          final int crossAxisCount = isWide ? (constraints.maxWidth > 1200 ? 3 : 2) : 1;
+      body: Consumer<HangoutProvider>(
+        builder: (context, provider, child) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final bool isWide = constraints.maxWidth > 800;
+              final int crossAxisCount = isWide ? (constraints.maxWidth > 1200 ? 3 : 2) : 1;
 
-          return CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                floating: true,
-                pinned: true,
-                expandedHeight: 120,
-                backgroundColor: AppColors.background,
-                flexibleSpace: FlexibleSpaceBar(
-                  title: const Text(
-                    'Discover Feed',
-                    style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+              return CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    floating: true,
+                    pinned: true,
+                    expandedHeight: 120,
+                    backgroundColor: AppColors.background,
+                    flexibleSpace: const FlexibleSpaceBar(
+                      title: Text(
+                        'Discover Feed',
+                        style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
+                      ),
+                      titlePadding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    ),
+                    actions: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(LucideIcons.slidersHorizontal, color: AppColors.trustBlue),
+                      ),
+                      const SizedBox(width: 16),
+                    ],
                   ),
-                  titlePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                ),
-                actions: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(LucideIcons.slidersHorizontal, color: AppColors.trustBlue),
-                  ),
-                  const SizedBox(width: 16),
+                  if (provider.isLoading)
+                    const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator(color: AppColors.trustBlue)),
+                    )
+                  else if (provider.hangouts.isEmpty)
+                    SliverFillRemaining(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(LucideIcons.map, size: 64, color: AppColors.textPlaceholder),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No hangouts nearby!',
+                              style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textSecondary),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Be the first to create one.',
+                              style: GoogleFonts.inter(color: AppColors.textPlaceholder),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.all(24),
+                      sliver: SliverGrid(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 20,
+                          mainAxisSpacing: 20,
+                          mainAxisExtent: isWide ? 280 : 160,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final hangout = provider.hangouts[index];
+                            return _buildFeedCard(context, hangout, isWide)
+                              .animate()
+                              .fadeIn(delay: (index * 50).ms, duration: 400.ms)
+                              .scale(begin: const Offset(0.95, 0.95), curve: Curves.easeOutCubic);
+                          },
+                          childCount: provider.hangouts.length,
+                        ),
+                      ),
+                    ),
                 ],
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.all(24),
-                sliver: SliverGrid(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 20,
-                    mainAxisExtent: isWide ? 280 : 160,
-                  ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final hangout = SEEDED_HANGOUTS[index % SEEDED_HANGOUTS.length];
-                      return _buildFeedCard(context, hangout, isWide)
-                        .animate()
-                        .fadeIn(delay: (index * 50).ms, duration: 400.ms)
-                        .scale(begin: const Offset(0.95, 0.95), curve: Curves.easeOutCubic);
-                    },
-                    childCount: 15, // Demonstration count
-                  ),
-                ),
-              ),
-            ],
+              );
+            },
           );
         },
       ),
     );
   }
 
-  Widget _buildFeedCard(BuildContext context, dynamic hangout, bool isWide) {
+  Widget _buildFeedCard(BuildContext context, HangoutModel hangout, bool isWide) {
     return GestureDetector(
       onTap: () => context.push('/hangout/${hangout.id}'),
       child: LiquidGlassCard(
@@ -79,7 +112,7 @@ class FeedScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildVerticalLayout(dynamic hangout) {
+  Widget _buildVerticalLayout(HangoutModel hangout) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -98,15 +131,15 @@ class FeedScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(hangout.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              Text(hangout.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18), maxLines: 1, overflow: TextOverflow.ellipsis),
               const SizedBox(height: 8),
               Row(
                 children: [
                   const Icon(LucideIcons.mapPin, size: 14, color: AppColors.trustBlue),
                   const SizedBox(width: 4),
-                  Text(hangout.category, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                  Text(hangout.type.name.toUpperCase(), style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                   const Spacer(),
-                  const Text("4.9 ★", style: TextStyle(color: AppColors.safetyGreen, fontWeight: FontWeight.bold, fontSize: 12)),
+                  Text("${hangout.hostTrustScore} ★", style: const TextStyle(color: AppColors.safetyGreen, fontWeight: FontWeight.bold, fontSize: 12)),
                 ],
               ),
             ],
@@ -116,7 +149,9 @@ class FeedScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHorizontalLayout(dynamic hangout) {
+  Widget _buildHorizontalLayout(HangoutModel hangout) {
+    final timeString = "${hangout.scheduledAt.hour}:${hangout.scheduledAt.minute.toString().padLeft(2, '0')}";
+    
     return Row(
       children: [
         Container(
@@ -133,9 +168,9 @@ class FeedScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(hangout.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(hangout.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), maxLines: 1, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 4),
-                Text(hangout.time, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                Text(timeString, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                 const Spacer(),
                 Row(
                   children: [
@@ -148,9 +183,8 @@ class FeedScreen extends StatelessWidget {
                       child: const Text("Join Now", style: TextStyle(color: AppColors.socialOrange, fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
                     const Spacer(),
-                    const CircleAvatar(radius: 12, child: Icon(LucideIcons.user, size: 14)),
-                    const SizedBox(width: -4),
-                    const CircleAvatar(radius: 12, backgroundColor: AppColors.surfaceElevated, child: Icon(LucideIcons.user, size: 14)),
+                    Text('${hangout.participantIds.length}/${hangout.maxParticipants} ', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                    const CircleAvatar(radius: 12, backgroundColor: AppColors.surfaceElevated, child: Icon(LucideIcons.user, size: 14, color: AppColors.trustBlue)),
                   ],
                 ),
               ],
