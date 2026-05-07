@@ -5,6 +5,7 @@ class AppTextField extends StatelessWidget {
   final TextEditingController? controller;
   final String hint;
   final IconData? prefixIcon;
+  final Widget? suffixIcon;
   final int maxLines;
   final FocusNode? focusNode;
 
@@ -13,6 +14,7 @@ class AppTextField extends StatelessWidget {
     this.controller,
     required this.hint,
     this.prefixIcon,
+    this.suffixIcon,
     this.maxLines = 1,
     this.focusNode,
   });
@@ -33,6 +35,7 @@ class AppTextField extends StatelessWidget {
           hintText: hint,
           hintStyle: GoogleFonts.inter(color: const Color(0xFF98A2B3)),
           prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: const Color(0xFF667085), size: 20) : null,
+          suffixIcon: suffixIcon,
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           border: InputBorder.none,
         ),

@@ -8,6 +8,11 @@ import '../../core/theme.dart';
 import '../../widgets/liquid_glass_card.dart';
 import '../../widgets/shared/app_inputs.dart';
 import '../../widgets/overlays/notifications_overlay.dart';
+import '../location_picker_screen.dart';
+import '../../models/hangout_model.dart';
+import '../../providers/hangout_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 class CreateHangoutScreen extends StatefulWidget {
   const CreateHangoutScreen({super.key});
@@ -19,9 +24,13 @@ class CreateHangoutScreen extends StatefulWidget {
 class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
+  final _locationController = TextEditingController();
+  double? _selectedLat;
+  double? _selectedLng;
   bool _isPrivate = false;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+  bool _isSubmitting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -113,59 +122,28 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
               const SizedBox(height: 24),
               
               _buildLabel('Location'),
-              Autocomplete<String>(
-                optionsBuilder: (TextEditingValue textEditingValue) async {
-                  if (textEditingValue.text == '') {
-                    return const Iterable<String>.empty();
-                  }
-                  // Using the provided API key for Places Autocomplete
-                  try {
-                    final response = await _getPlaceSuggestions(textEditingValue.text);
-                    return response;
-                  } catch (e) {
-                    return const Iterable<String>.empty();
-                  }
-                },
-                onSelected: (String selection) {
-                  debugPrint('Selected location: $selection');
-                },
-                fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-                  return AppTextField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    hint: 'Search places (Powered by Google)...',
-                    prefixIcon: LucideIcons.mapPin,
-                  );
-                },
-                optionsViewBuilder: (context, onSelected, options) {
-                  return Align(
-                    alignment: Alignment.topLeft,
-                    child: Material(
-                      elevation: 4,
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width - 48,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: ListView.builder(
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          itemCount: options.length,
-                          itemBuilder: (context, index) {
-                            final option = options.elementAt(index);
-                            return ListTile(
-                              leading: const Icon(LucideIcons.mapPin, size: 16, color: Color(0xFF667085)),
-                              title: Text(option, style: GoogleFonts.inter(fontSize: 14)),
-                              onTap: () => onSelected(option),
-                            );
-                          },
-                        ),
+              AppTextField(
+                controller: _locationController,
+                hint: 'Search or pick on map...',
+                prefixIcon: LucideIcons.mapPin,
+                suffixIcon: IconButton(
+                  icon: const Icon(LucideIcons.map, color: AppColors.trustBlue),
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LocationPickerScreen(),
                       ),
-                    ),
-                  );
-                },
+                    );
+                    if (result != null && result is Map) {
+                      setState(() {
+                        _locationController.text = result['address'];
+                        _selectedLat = result['lat'];
+                        _selectedLng = result['lng'];
+                      });
+                    }
+                  },
+                ),
               ),
               
               const SizedBox(height: 24),
@@ -334,39 +312,92 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
   }
 
   Widget _buildSubmitButton() {
-    return LiquidGlassCard(
-      borderRadius: BorderRadius.circular(40),
-      opacity: 0.1,
-      blur: 10,
-      child: Container(
-        width: double.infinity,
-        height: 64,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFF97316), Color(0xFFFB923C)],
-          ),
-          borderRadius: BorderRadius.circular(40),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFFF97316).withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+    return GestureDetector(
+      onTap: _isSubmitting ? null : _submitHangout,
+      child: LiquidGlassCard(
+        borderRadius: BorderRadius.circular(40),
+        opacity: _isSubmitting ? 0.3 : 0.1,
+        blur: 10,
+        child: Container(
+          width: double.infinity,
+          height: 64,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFF97316), Color(0xFFFB923C)],
             ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            'CREATE HANGOUT',
-            style: GoogleFonts.outfit(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 2,
-            ),
+            borderRadius: BorderRadius.circular(40),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFF97316).withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Center(
+            child: _isSubmitting 
+              ? const CircularProgressIndicator(color: Colors.white)
+              : Text(
+                  'CREATE HANGOUT',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 2,
+                  ),
+                ),
           ),
         ),
-      ),
-    ).animate().shimmer();
+      ).animate().shimmer(),
+    );
+  }
+
+  Future<void> _submitHangout() async {
+    if (_nameController.text.isEmpty || _locationController.text.isEmpty || _selectedDate == null || _selectedTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all required fields.')));
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final now = DateTime.now();
+      final meetupTime = DateTime(
+        _selectedDate!.year, _selectedDate!.month, _selectedDate!.day,
+        _selectedTime!.hour, _selectedTime!.minute
+      );
+
+      final newHangout = HangoutModel(
+        id: 'h_${now.millisecondsSinceEpoch}',
+        creatorId: 'u_current',
+        title: _nameController.text,
+        description: _descController.text,
+        meetingZone: LocationPoint(
+          latitude: _selectedLat ?? 20.5937,
+          longitude: _selectedLng ?? 78.9629,
+          accuracy: 50,
+        ),
+        scheduledTime: meetupTime,
+        category: 'social',
+        isPrivate: _isPrivate,
+        createdAt: now,
+      );
+
+      // Simulating network delay
+      await Future.delayed(const Duration(seconds: 1));
+      
+      // Save to provider/state (if available)
+      if (mounted) {
+        // You could add to HangoutProvider here if you had an add method
+        // context.read<HangoutProvider>().addHangout(newHangout);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hangout created successfully!')));
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   Future<void> _pickDate() async {
