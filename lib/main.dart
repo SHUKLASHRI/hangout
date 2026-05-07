@@ -23,8 +23,8 @@ void main() async {
   // Initialize Firebase — must succeed for auth to work
   try {
     await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyCbXKjrR-ru2QQwciyPjbakCj8UNjB7Rfg",
+      options: FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
         appId: "1:250263355121:web:c9ecc70294aecba17bb350",
         messagingSenderId: "250263355121",
         projectId: "hangout-72488",
