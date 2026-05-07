@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../models/hangout_model.dart';
 import '../providers/hangout_provider.dart';
+import '../providers/location_provider.dart';
 import '../widgets/map/marker_generator.dart';
 import '../widgets/map/hangout_marker_widget.dart';
 import '../widgets/liquid_glass_card.dart';
@@ -21,6 +22,7 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  final Completer<GoogleMapController> _controller = Completer();
   final Set<Marker> _markers = {};
   final Set<Circle> _circles = {};
   bool _isGeneratingMarkers = false;
@@ -88,69 +90,39 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final hangoutProvider = context.watch<HangoutProvider>();
+    final locationProvider = context.watch<LocationProvider>();
 
     // Side effect - trigger marker generation when hangouts change
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateMapElements(hangoutProvider.hangouts);
     });
 
+    final initialPosition = CameraPosition(
+      target: LatLng(
+        locationProvider.currentPosition?.latitude ?? 20.5937,
+        locationProvider.currentPosition?.longitude ?? 78.9629, // Default: India center
+      ),
+      zoom: locationProvider.currentPosition != null ? 14 : 5,
+    );
+
     return Scaffold(
       body: Stack(
         children: [
-          // Animated Map Landing (World -> India)
-          Stack(
-            children: [
-              // World Map (Background)
-              Image.asset(
-                'assets/images/world_map.png',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              ).animate().fadeOut(delay: 1.5.seconds, duration: 1.seconds),
-
-              // Detailed India Map (Foreground)
-              Image.asset(
-                'assets/images/map_placeholder.png',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              )
-                  .animate()
-                  .fadeIn(delay: 1.5.seconds, duration: 1.seconds)
-                  .scale(
-                    begin: const Offset(0.3, 0.3),
-                    end: const Offset(1.0, 1.0),
-                    curve: Curves.easeOutQuart,
-                    duration: 2.seconds,
-                    delay: 1.seconds,
-                  ),
-            ],
+          // Map — always the base layer
+          GoogleMap(
+            mapType: MapType.normal,
+            initialCameraPosition: initialPosition,
+            markers: _markers,
+            circles: _circles,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            zoomControlsEnabled: false,
+            onMapCreated: (GoogleMapController controller) {
+              if (!_controller.isCompleted) {
+                _controller.complete(controller);
+              }
+            },
           ),
-
-          // Overlay for Placeholder Info
-          Positioned(
-            top: 60,
-            left: 20,
-            right: 20,
-            child: Center(
-              child: LiquidGlassCard(
-                borderRadius: BorderRadius.circular(20),
-                opacity: 0.8,
-                blur: 10,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text(
-                    '🌏 Global to Local • India View',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.trustBlue,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ).animate().fadeIn(delay: 3.seconds),
 
           // Glass status chip — simple overlay, BackdropFilter-based (web-safe)
           if (_isGeneratingMarkers)
@@ -203,10 +175,17 @@ class _MapScreenState extends State<MapScreen> {
                 _glassActionButton(
                   icon: Icons.my_location_rounded,
                   tooltip: 'My Location',
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Interactive Map Integration Coming Soon!')),
-                    );
+                  onTap: () async {
+                    if (!_controller.isCompleted) return;
+                    final controller = await _controller.future;
+                    if (locationProvider.currentPosition != null) {
+                      controller.animateCamera(CameraUpdate.newLatLng(
+                        LatLng(
+                          locationProvider.currentPosition!.latitude,
+                          locationProvider.currentPosition!.longitude,
+                        ),
+                      ));
+                    }
                   },
                 ),
               ],
