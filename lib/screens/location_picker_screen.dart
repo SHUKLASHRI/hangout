@@ -104,10 +104,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 borderRadius: BorderRadius.circular(20),
                 opacity: 0.8,
                 blur: 10,
-                child: const Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(shape: BoxShape.circle),
-                  child: Icon(LucideIcons.arrowLeft, color: AppColors.trustBlue),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                  child: const Icon(LucideIcons.arrowLeft, color: AppColors.trustBlue),
                 ),
               ),
             ),
