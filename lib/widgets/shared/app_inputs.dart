@@ -6,6 +6,7 @@ class AppTextField extends StatelessWidget {
   final String hint;
   final IconData? prefixIcon;
   final int maxLines;
+  final FocusNode? focusNode;
 
   const AppTextField({
     super.key,
@@ -13,6 +14,7 @@ class AppTextField extends StatelessWidget {
     required this.hint,
     this.prefixIcon,
     this.maxLines = 1,
+    this.focusNode,
   });
 
   @override
@@ -25,6 +27,7 @@ class AppTextField extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
+        focusNode: focusNode,
         maxLines: maxLines,
         decoration: InputDecoration(
           hintText: hint,

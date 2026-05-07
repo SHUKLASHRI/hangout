@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -111,9 +113,59 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
               const SizedBox(height: 24),
               
               _buildLabel('Location'),
-              AppTextField(
-                hint: 'Search places...',
-                prefixIcon: LucideIcons.mapPin,
+              Autocomplete<String>(
+                optionsBuilder: (TextEditingValue textEditingValue) async {
+                  if (textEditingValue.text == '') {
+                    return const Iterable<String>.empty();
+                  }
+                  // Using the provided API key for Places Autocomplete
+                  try {
+                    final response = await _getPlaceSuggestions(textEditingValue.text);
+                    return response;
+                  } catch (e) {
+                    return const Iterable<String>.empty();
+                  }
+                },
+                onSelected: (String selection) {
+                  debugPrint('Selected location: $selection');
+                },
+                fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                  return AppTextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    hint: 'Search places (Powered by Google)...',
+                    prefixIcon: LucideIcons.mapPin,
+                  );
+                },
+                optionsViewBuilder: (context, onSelected, options) {
+                  return Align(
+                    alignment: Alignment.topLeft,
+                    child: Material(
+                      elevation: 4,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width - 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          itemCount: options.length,
+                          itemBuilder: (context, index) {
+                            final option = options.elementAt(index);
+                            return ListTile(
+                              leading: const Icon(LucideIcons.mapPin, size: 16, color: Color(0xFF667085)),
+                              title: Text(option, style: GoogleFonts.inter(fontSize: 14)),
+                              onTap: () => onSelected(option),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
               
               const SizedBox(height: 24),
@@ -333,5 +385,25 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
       initialTime: TimeOfDay.now(),
     );
     if (time != null) setState(() => _selectedTime = time);
+  }
+
+  Future<List<String>> _getPlaceSuggestions(String query) async {
+    const apiKey = 'AIzaSyBi5BWoJecW02xtyfD47oEpG5FUIKzUVsQ'; // Key provided by user
+    final url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$query&key=$apiKey');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK') {
+          final predictions = data['predictions'] as List;
+          return predictions.map((p) => p['description'] as String).toList();
+        }
+      }
+    } catch (e) {
+      debugPrint('Places API error: $e');
+    }
+    return [];
   }
 }
