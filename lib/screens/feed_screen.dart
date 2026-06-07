@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import '../core/theme.dart';
+import '../core/constants.dart';
 import '../providers/hangout_provider.dart';
 import '../widgets/hangout_card.dart';
 
