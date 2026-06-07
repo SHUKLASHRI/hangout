@@ -5,7 +5,7 @@ import 'activity_chip.dart';
 import 'trust_badge.dart';
 import 'liquid_glass_card.dart';
 
-class HangoutCard extends StatelessWidget {
+class HangoutCard extends StatefulWidget {
   final HangoutModel hangout;
   final VoidCallback onTap;
 
@@ -16,84 +16,174 @@ class HangoutCard extends StatelessWidget {
   });
 
   @override
+  State<HangoutCard> createState() => _HangoutCardState();
+}
+
+class _HangoutCardState extends State<HangoutCard> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    final spotsLeft = hangout.maxParticipants - hangout.participantIds.length;
+    final spotsLeft = widget.hangout.maxParticipants - widget.hangout.participantIds.length;
     final isFull = spotsLeft <= 0;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: LiquidGlassCard(
-        padding: const EdgeInsets.all(16),
-        color: AppColors.trustBlue, // Base trust for feed items
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ActivityChip(type: hangout.type),
-                TrustBadge(score: hangout.hostTrustScore),
-              ],
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          transform: Matrix4.identity()..scale(_isHovered ? 1.02 : 1.0),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+              boxShadow: _isHovered
+                  ? AppConstants.shadowXl
+                  : AppConstants.shadowMd,
             ),
-            const SizedBox(height: 16),
-            Text(
-              hangout.title,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+            child: LiquidGlassCard(
+              borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+              padding: const EdgeInsets.all(AppConstants.spacing5),
+              color: AppColors.trustBlue,
+              blur: 10,
+              opacity: 0.05,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white.withValues(alpha: 0.8),
+                      Colors.white.withValues(alpha: 0.6),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.access_time_rounded, size: 14, color: AppColors.textSecondary),
-                const SizedBox(width: 4),
-                Text(
-                  _formatTime(hangout.scheduledAt),
-                  style: Theme.of(context).textTheme.bodySmall,
                 ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: isFull ? Colors.grey.shade100 : AppColors.socialOrange.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    isFull ? 'FULL' : '$spotsLeft spots left',
-                    style: TextStyle(
-                      color: isFull ? Colors.grey.shade600 : AppColors.socialOrange,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 11,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header with Activity and Trust Badge
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ActivityChip(type: widget.hangout.type),
+                        TrustBadge(score: widget.hangout.hostTrustScore),
+                      ],
                     ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 14,
-                  backgroundColor: AppColors.surfaceElevated,
-                  child: Text(
-                    hangout.hostName[0].toUpperCase(),
-                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Hosted by ${hangout.hostName}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                    SizedBox(height: AppConstants.spacing4),
+                    
+                    // Hangout Title
+                    Text(
+                      widget.hangout.title,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: AppConstants.spacing2),
+                    
+                    // Time & Availability Row
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.access_time_rounded,
+                          size: 14,
+                          color: AppColors.vibrantOrange,
+                        ),
+                        SizedBox(width: AppConstants.spacing2),
+                        Expanded(
+                          child: Text(
+                            _formatTime(widget.hangout.scheduledAt),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: AppConstants.spacing2),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppConstants.spacing3,
+                            vertical: AppConstants.spacing1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isFull
+                                ? AppColors.danger.withValues(alpha: 0.1)
+                                : AppColors.success.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+                          ),
+                          child: Text(
+                            isFull ? '🔴 FULL' : '🟢 $spotsLeft spots',
+                            style: TextStyle(
+                              color: isFull ? AppColors.danger : AppColors.success,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: AppConstants.spacing4),
+                    
+                    // Host Info
+                    Container(
+                      padding: const EdgeInsets.all(AppConstants.spacing3),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceDim,
+                        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: AppColors.primaryGradient,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              widget.hangout.hostName[0].toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: AppConstants.spacing3),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Hosted by',
+                                  style: Theme.of(context).textTheme.labelSmall,
+                                ),
+                                Text(
+                                  widget.hangout.hostName,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -102,8 +192,22 @@ class HangoutCard extends StatelessWidget {
   String _formatTime(DateTime time) {
     final now = DateTime.now();
     final difference = time.difference(now);
-    if (difference.inMinutes < 60) return 'In ${difference.inMinutes} mins';
-    if (difference.inHours < 24) return 'Today at ${time.hour}:${time.minute.toString().padLeft(2, '0')}';
+    
+    if (difference.inMinutes < 60) {
+      return 'In ${difference.inMinutes}m';
+    }
+    if (difference.inHours < 24) {
+      return 'Today at ${time.hour}:${time.minute.toString().padLeft(2, '0')}';
+    }
+    if (difference.inDays < 7) {
+      return '${_getDayName(time.weekday)} at ${time.hour}:${time.minute.toString().padLeft(2, '0')}';
+    }
+    
     return '${time.day}/${time.month} at ${time.hour}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  String _getDayName(int weekday) {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return days[weekday - 1];
   }
 }

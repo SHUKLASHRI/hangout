@@ -90,7 +90,7 @@ class _RatingScreenState extends State<RatingScreen> {
                   onPressed: () => setState(() => _rating = index + 1),
                   icon: Icon(
                     isSelected ? Icons.star_rounded : Icons.star_outline_rounded,
-                    color: isSelected ? AppColors.socialOrange : AppColors.textSecondary,
+                    color: isSelected ? AppColors.vibrantOrange : AppColors.textSecondary,
                     size: 48,
                   ),
                 );

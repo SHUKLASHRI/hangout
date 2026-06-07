@@ -30,7 +30,7 @@ class HangoutMarkerWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: isFull ? Colors.grey.shade700 : AppColors.socialOrange,
+        color: isFull ? Colors.grey.shade700 : AppColors.vibrantOrange,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(

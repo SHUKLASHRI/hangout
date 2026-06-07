@@ -98,7 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               height: 4,
               margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
-                color: isActive ? AppColors.socialOrange : Colors.grey.shade300,
+                color: isActive ? AppColors.vibrantOrange : Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -189,8 +189,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     else _selectedInterests.remove(interest);
                   });
                 },
-                selectedColor: AppColors.socialOrange.withValues(alpha: 0.2),
-                checkmarkColor: AppColors.socialOrange,
+                selectedColor: AppColors.vibrantOrange.withValues(alpha: 0.2),
+                checkmarkColor: AppColors.vibrantOrange,
               );
             }).toList(),
           ),
@@ -205,13 +205,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.verified_user_rounded, color: AppColors.safetyGreen, size: 64),
+          const Icon(Icons.verified_user_rounded, color: AppColors.success, size: 64),
           const SizedBox(height: 24),
           const Text("SAFETY FIRST", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2)),
           const SizedBox(height: 32),
           LiquidGlassCard(
             padding: const EdgeInsets.all(16),
-            color: AppColors.safetyGreen,
+            color: AppColors.success,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 200),
               child: const SingleChildScrollView(

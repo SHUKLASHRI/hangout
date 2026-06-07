@@ -52,7 +52,7 @@ class DesktopSidebar extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.handshake_rounded, color: AppColors.socialOrange, size: 28),
+            child: const Icon(Icons.handshake_rounded, color: AppColors.vibrantOrange, size: 28),
           ),
           const SizedBox(width: 12),
           const Text(
@@ -77,7 +77,7 @@ class DesktopSidebar extends StatelessWidget {
         icon: const Icon(LucideIcons.plus, size: 18),
         label: const Text('Host a Hangout'),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.socialOrange,
+          backgroundColor: AppColors.vibrantOrange,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -98,7 +98,7 @@ class DesktopSidebar extends StatelessWidget {
       child: ListTile(
         leading: Icon(
           icon,
-          color: isSelected ? AppColors.socialOrange : Colors.white.withValues(alpha: 0.65),
+          color: isSelected ? AppColors.vibrantOrange : Colors.white.withValues(alpha: 0.65),
           size: 20,
         ),
         title: Text(

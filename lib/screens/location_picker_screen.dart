@@ -90,7 +90,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               child: Icon(
                 Icons.location_on,
                 size: 50,
-                color: AppColors.socialOrange,
+                color: AppColors.vibrantOrange,
               ),
             ),
           ),

@@ -61,8 +61,8 @@ class _MapScreenState extends State<MapScreen> {
             circleId: CircleId('zone_${hangout.id}'),
             center: LatLng(hangout.meetingZone.latitude, hangout.meetingZone.longitude),
             radius: 500, // 500m privacy zone per PRD
-            fillColor: AppColors.socialOrange.withValues(alpha: 0.10),
-            strokeColor: AppColors.socialOrange.withValues(alpha: 0.45),
+            fillColor: AppColors.vibrantOrange.withValues(alpha: 0.10),
+            strokeColor: AppColors.vibrantOrange.withValues(alpha: 0.45),
             strokeWidth: 2,
           ),
         );

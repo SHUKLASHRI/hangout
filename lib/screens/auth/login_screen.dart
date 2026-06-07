@@ -99,7 +99,7 @@ class LoginScreen extends StatelessWidget {
                         child: Text(
                           'Sign Up',
                           style: GoogleFonts.inter(
-                            color: AppColors.socialOrange,
+                            color: AppColors.vibrantOrange,
                             fontWeight: FontWeight.w700,
                             decoration: TextDecoration.underline,
                           ),

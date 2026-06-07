@@ -105,8 +105,8 @@ class HangoutDetailScreen extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundColor: AppColors.socialOrange.withValues(alpha: 0.1),
-            child: Text(hangout.hostName[0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.socialOrange)),
+            backgroundColor: AppColors.vibrantOrange.withValues(alpha: 0.1),
+            child: Text(hangout.hostName[0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.vibrantOrange)),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -138,7 +138,7 @@ class HangoutDetailScreen extends StatelessWidget {
   Widget _infoItem(IconData icon, String label, String value) {
     return Column(
       children: [
-        Icon(icon, color: AppColors.socialOrange, size: 24),
+        Icon(icon, color: AppColors.vibrantOrange, size: 24),
         const SizedBox(height: 8),
         Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
         Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -163,12 +163,12 @@ class HangoutDetailScreen extends StatelessWidget {
   Widget _buildLocationRevealSection(HangoutModel hangout, bool isRevealed) {
     return LiquidGlassCard(
       padding: const EdgeInsets.all(20),
-      color: isRevealed ? AppColors.safetyGreen : AppColors.socialOrange,
+      color: isRevealed ? AppColors.success : AppColors.vibrantOrange,
       child: Row(
         children: [
           Icon(
             isRevealed ? LucideIcons.mapPin : LucideIcons.lock,
-            color: isRevealed ? AppColors.safetyGreen : AppColors.socialOrange,
+            color: isRevealed ? AppColors.success : AppColors.vibrantOrange,
             size: 28,
           ),
           const SizedBox(width: 20),
@@ -225,7 +225,7 @@ class HangoutDetailScreen extends StatelessWidget {
     final isExpired = DateTime.now().isAfter(hangout.expiresAt);
 
     if (isExpired && (isParticipant || isHost)) {
-      return _bottomAction("RATE PARTICIPANTS", AppColors.safetyGreen, () {
+      return _bottomAction("RATE PARTICIPANTS", AppColors.success, () {
         // Open rating for the host as an example
         Navigator.push(
           context,
@@ -253,7 +253,7 @@ class HangoutDetailScreen extends StatelessWidget {
       });
     }
 
-    return _bottomAction("JOIN HANGOUT", AppColors.socialOrange, () {
+    return _bottomAction("JOIN HANGOUT", AppColors.vibrantOrange, () {
       context.read<HangoutProvider>().join(hangout.id, uid!);
     });
   }

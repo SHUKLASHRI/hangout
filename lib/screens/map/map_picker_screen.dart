@@ -30,7 +30,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
           if (_selectedLocation != null)
             TextButton(
               onPressed: () => Navigator.pop(context, GeoPoint(_selectedLocation!.latitude, _selectedLocation!.longitude)),
-              child: const Text("CONFIRM", style: TextStyle(color: AppColors.socialOrange, fontWeight: FontWeight.bold)),
+              child: const Text("CONFIRM", style: TextStyle(color: AppColors.vibrantOrange, fontWeight: FontWeight.bold)),
             ),
         ],
       ),

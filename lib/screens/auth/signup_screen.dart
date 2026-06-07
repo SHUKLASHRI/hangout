@@ -31,7 +31,7 @@ class _SignupScreenState extends State<SignupScreen> {
         children: [
           // Background Blobs
           Positioned(top: -50, right: -50, child: _buildBlob(AppColors.trustBlue)),
-          Positioned(bottom: -100, left: -100, child: _buildBlob(AppColors.socialOrange)),
+          Positioned(bottom: -100, left: -100, child: _buildBlob(AppColors.vibrantOrange)),
           
           SafeArea(
             child: Center(
@@ -98,7 +98,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                 Checkbox(
                                   value: _isAgeConfirmed,
                                   onChanged: (val) => setState(() => _isAgeConfirmed = val ?? false),
-                                  activeColor: AppColors.socialOrange,
+                                  activeColor: AppColors.vibrantOrange,
                                 ),
                                 const Expanded(
                                   child: Text(

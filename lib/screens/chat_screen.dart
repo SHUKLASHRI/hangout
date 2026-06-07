@@ -101,7 +101,7 @@ class _ChatScreenState extends State<ChatScreen> {
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(color: AppColors.socialOrange, shape: BoxShape.circle),
+                decoration: const BoxDecoration(color: AppColors.vibrantOrange, shape: BoxShape.circle),
                 child: Text(
                   unread.toString(),
                   style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
@@ -130,7 +130,7 @@ class ChatDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const Text("Online", style: TextStyle(fontSize: 12, color: AppColors.safetyGreen)),
+            const Text("Online", style: TextStyle(fontSize: 12, color: AppColors.success)),
           ],
         ),
       ),

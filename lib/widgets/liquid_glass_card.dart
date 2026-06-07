@@ -14,6 +14,7 @@ class LiquidGlassCard extends StatelessWidget {
   final BorderRadius? borderRadius;
   final Color? borderColor;
   final Color? color;
+  final List<BoxShadow>? shadows;
 
   const LiquidGlassCard({
     super.key,
@@ -22,15 +23,16 @@ class LiquidGlassCard extends StatelessWidget {
     this.height,
     this.padding,
     this.blur = 15.0,
-    this.opacity = 0.1,
+    this.opacity = 0.08,
     this.borderRadius,
     this.borderColor,
     this.color,
+    this.shadows,
   });
 
   @override
   Widget build(BuildContext context) {
-    final effectiveRadius = borderRadius ?? BorderRadius.circular(AppConstants.radiusCard);
+    final effectiveRadius = borderRadius ?? BorderRadius.circular(AppConstants.radiusLg);
     
     return Container(
       width: width,
@@ -38,9 +40,10 @@ class LiquidGlassCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: effectiveRadius,
         border: Border.all(
-          color: borderColor ?? Colors.white.withValues(alpha: 0.2),
-          width: 1.5,
+          color: borderColor ?? AppColors.glassBorder,
+          width: 1.2,
         ),
+        boxShadow: shadows ?? AppConstants.shadowMd,
       ),
       child: ClipRRect(
         borderRadius: effectiveRadius,

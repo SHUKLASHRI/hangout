@@ -20,7 +20,7 @@ class AppShell extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isDesktop = constraints.maxWidth > 800;
+        final bool isDesktop = constraints.maxWidth > 900;
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -28,14 +28,15 @@ class AppShell extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  if (isDesktop) DesktopSidebar(state: state),
+                  if (isDesktop)
+                    DesktopSidebar(state: state),
                   Expanded(child: child),
                 ],
               ),
               if (!isDesktop)
                 Positioned(
-                  top: MediaQuery.of(context).padding.top + 16,
-                  right: 20,
+                  top: MediaQuery.of(context).padding.top + AppConstants.spacing4,
+                  right: AppConstants.spacing4,
                   child: const TopAlerts(),
                 ),
             ],

@@ -110,7 +110,7 @@ class ProfileScreen extends StatelessWidget {
               right: 4,
               child: Container(
                 padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(color: AppColors.safetyGreen, shape: BoxShape.circle),
+                decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
                 child: const Icon(LucideIcons.check, color: Colors.white, size: 14),
               ),
             ),
@@ -136,7 +136,7 @@ class ProfileScreen extends StatelessWidget {
     
     if (score >= 4.5) {
       label = 'Elite Identity';
-      color = AppColors.safetyGreen;
+      color = AppColors.success;
     } else if (score >= 3.5) {
       label = 'Highly Trusted';
       color = AppColors.trustBlue;

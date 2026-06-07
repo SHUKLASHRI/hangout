@@ -39,7 +39,7 @@ class NotificationsOverlay extends StatelessWidget {
           const SizedBox(height: 24),
           _buildNotificationItem(
             icon: LucideIcons.circleCheck,
-            color: AppColors.safetyGreen,
+            color: AppColors.success,
             title: 'Hangout Confirmed',
             message: 'Your Strategy Night hangout has been approved by the host.',
             time: '2m ago',
@@ -47,7 +47,7 @@ class NotificationsOverlay extends StatelessWidget {
           const SizedBox(height: 16),
           _buildNotificationItem(
             icon: LucideIcons.star,
-            color: AppColors.socialOrange,
+            color: AppColors.vibrantOrange,
             title: 'New Rating!',
             message: 'Someone rated you 5 stars for the "Morning Coffee" hangout.',
             time: '1h ago',

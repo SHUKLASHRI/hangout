@@ -12,8 +12,8 @@ class TrustBadge extends StatelessWidget {
   });
 
   Color _getScoreColor() {
-    if (score >= 4.0) return AppColors.safetyGreen;
-    if (score >= 3.0) return AppColors.socialOrange;
+    if (score >= 4.0) return AppColors.success;
+    if (score >= 3.0) return AppColors.vibrantOrange;
     return const Color(0xFFEF4444);
   }
 

@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               child: const Icon(
                 Icons.handshake_rounded,
-                color: AppColors.socialOrange,
+                color: AppColors.vibrantOrange,
                 size: 64,
               ),
             )
@@ -75,7 +75,7 @@ class _SplashScreenState extends State<SplashScreen> {
             .boxShadow(
               begin: const BoxShadow(color: Colors.transparent),
               end: BoxShadow(
-                color: AppColors.socialOrange.withValues(alpha: 0.3),
+                color: AppColors.vibrantOrange.withValues(alpha: 0.3),
                 blurRadius: 20,
               ),
             ),
@@ -92,7 +92,7 @@ class _SplashScreenState extends State<SplashScreen> {
             .animate()
             .fadeIn(duration: 800.ms)
             .slideY(begin: 0.2, end: 0)
-            .shimmer(delay: 1200.ms, duration: 1500.ms, color: AppColors.socialOrange.withValues(alpha: 0.5)),
+            .shimmer(delay: 1200.ms, duration: 1500.ms, color: AppColors.vibrantOrange.withValues(alpha: 0.5)),
 
             const SizedBox(height: 8),
 
