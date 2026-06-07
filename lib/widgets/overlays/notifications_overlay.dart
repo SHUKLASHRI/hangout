@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme.dart';
 import '../liquid_glass_card.dart';
@@ -38,7 +38,7 @@ class NotificationsOverlay extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           _buildNotificationItem(
-            icon: LucideIcons.circleCheck,
+            icon: LucideIcons.checkCircle,
             color: AppColors.success,
             title: 'Hangout Confirmed',
             message: 'Your Strategy Night hangout has been approved by the host.',

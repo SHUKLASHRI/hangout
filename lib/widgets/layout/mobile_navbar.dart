@@ -1,6 +1,7 @@
+import 'package:hangout/core/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/theme.dart';
 import '../../core/constants.dart';
 import '../../providers/app_state.dart';
@@ -42,7 +43,7 @@ class MobileNavbar extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _navItem(context, 0, LucideIcons.house, 'Home'),
+                  _navItem(context, 0, LucideIcons.home, 'Home'),
                   _navItem(context, 1, LucideIcons.compass, 'Explore'),
                   SizedBox(width: AppConstants.spacing6),
                   _navItem(context, 2, LucideIcons.messageSquare, 'Chat'),
