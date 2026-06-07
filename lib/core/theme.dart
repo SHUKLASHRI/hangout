@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'constants.dart';
 
 class AppColors {
   // Modern Brand Palette
@@ -49,47 +50,6 @@ class AppColors {
   static const Color primary = trustBlue;
   static const Color secondary = vibrantOrange;
   static const Color accent = brightPurple;
-}
-
-class AppConstants {
-  // Radius - Modern rounded corners
-  static const double radiusXs = 8.0;
-  static const double radiusSm = 12.0;
-  static const double radiusMd = 16.0;
-  static const double radiusLg = 24.0;
-  static const double radiusXl = 32.0;
-  
-  // Spacing - 4px base unit
-  static const double spacing1 = 4.0;
-  static const double spacing2 = 8.0;
-  static const double spacing3 = 12.0;
-  static const double spacing4 = 16.0;
-  static const double spacing5 = 20.0;
-  static const double spacing6 = 24.0;
-  static const double spacing8 = 32.0;
-  
-  // Legacy compatibility
-  static const double radiusCard = radiusLg;
-  static const double radiusChip = radiusMd;
-  static const double paddingPage = spacing6;
-  static const double animFast = 200.0;
-  
-  // Shadows
-  static const List<BoxShadow> shadowSm = [
-    BoxShadow(color: Color(0x05000000), blurRadius: 4, offset: Offset(0, 1)),
-  ];
-  
-  static const List<BoxShadow> shadowMd = [
-    BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2)),
-  ];
-  
-  static const List<BoxShadow> shadowLg = [
-    BoxShadow(color: Color(0x0F000000), blurRadius: 16, offset: Offset(0, 4)),
-  ];
-  
-  static const List<BoxShadow> shadowXl = [
-    BoxShadow(color: Color(0x14000000), blurRadius: 24, offset: Offset(0, 8)),
-  ];
 }
 
 class AppTheme {
