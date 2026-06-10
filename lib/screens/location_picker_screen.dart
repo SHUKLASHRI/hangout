@@ -37,7 +37,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
 
   Future<void> _fetchAddress(LatLng position) async {
     setState(() => _isLoadingAddress = true);
-    final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
+    final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']?.isNotEmpty == true ? dotenv.env['GOOGLE_MAPS_API_KEY']! : 'AIzaSyCjzOlmp6DXrQy9F0-K1IZqD95TNHx1oSM';
     final url = Uri.parse(
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$apiKey');
 

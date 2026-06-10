@@ -18,13 +18,17 @@ import 'providers/location_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint('[HANGOUT] .env file not found or empty, relying on fallback keys');
+  }
 
   // Initialize Firebase — must succeed for auth to work
   try {
     await Firebase.initializeApp(
       options: FirebaseOptions(
-        apiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
+        apiKey: dotenv.env['FIREBASE_API_KEY']?.isNotEmpty == true ? dotenv.env['FIREBASE_API_KEY']! : 'AIzaSyCbXKjrR-ru2QQwciyPjbakCj8UNjB7Rfg',
         appId: "1:250263355121:web:c9ecc70294aecba17bb350",
         messagingSenderId: "250263355121",
         projectId: "hangout-72488",
