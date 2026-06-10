@@ -2,7 +2,6 @@ import 'package:hangout/core/constants.dart';
 import 'package:flutter/material.dart';
 import '../models/hangout_model.dart';
 import '../core/theme.dart';
-import '../core/constants.dart';
 import 'activity_chip.dart';
 import 'trust_badge.dart';
 import 'liquid_glass_card.dart';

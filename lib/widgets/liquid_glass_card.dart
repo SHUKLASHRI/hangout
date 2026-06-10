@@ -2,7 +2,6 @@ import 'package:hangout/core/constants.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../core/theme.dart';
-import '../core/constants.dart';
 
 /// A premium glassmorphism widget that provides a frosted glass effect
 /// with high compatibility across Web and Mobile.
