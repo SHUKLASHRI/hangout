@@ -116,5 +116,30 @@ service cloud.firestore {
         && request.resource.data.reason is string;
       allow read, update, delete: if false; // Only manageable via Admin SDK/Console
     }
+
+    // 🎟️ Participations Collection (Associative Entity)
+    match /participations/{participationId} {
+      allow read: if isSignedIn();
+      // Only the enrolling user can create their participation
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.hangoutId is string
+        && request.resource.data.status in ['confirmed'];
+      // User can cancel their own participation, or Host can update attendance
+      allow update: if isSignedIn() && (
+        resource.data.userId == request.auth.uid
+        || request.auth.uid == get(/databases/$(database)/documents/hangouts/$(resource.data.hangoutId)).data.hostId
+      );
+      allow delete: if false;
+    }
+
+    // 📜 Audit Logs (Append-Only Immutable Ledger)
+    match /audit_logs/{logId} {
+      allow read: if false; // Secret audit trail for fraud investigation
+      allow create: if isSignedIn() 
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.action is string;
+      allow update, delete: if false;
+    }
   }
 }

@@ -6,6 +6,8 @@ class AppConstants {
   static const String hangoutsCollection = 'hangouts';
   static const String ratingsCollection = 'ratings';
   static const String reportsCollection = 'reports';
+  static const String participationsCollection = 'participations';
+  static const String auditLogsCollection = 'audit_logs';
 
   // ============ DESIGN TOKENS ============
   // Radius - Modern rounded corners

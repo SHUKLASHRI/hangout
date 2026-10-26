@@ -11,6 +11,7 @@ import 'services/hangout_service.dart';
 import 'services/location_service.dart';
 import 'services/trust_service.dart';
 import 'services/notification_service.dart';
+import 'services/database_init_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/app_state.dart';
 import 'providers/hangout_provider.dart';
@@ -50,6 +51,12 @@ void main() async {
   final locationService = LocationService();
   final trustService = TrustService();
   final notificationService = NotificationService();
+  final databaseInitService = DatabaseInitService();
+
+  // Async seed if empty (non-blocking)
+  databaseInitService.seedInitialDataIfEmpty().catchError((e) {
+    debugPrint('[HANGOUT] DB init background notice: $e');
+  });
 
   // Notifications are NOT supported on Flutter Web — guard here
   if (!kIsWeb) {
@@ -70,6 +77,7 @@ void main() async {
         Provider<LocationService>.value(value: locationService),
         Provider<TrustService>.value(value: trustService),
         Provider<NotificationService>.value(value: notificationService),
+        Provider<DatabaseInitService>.value(value: databaseInitService),
         ChangeNotifierProvider(
           create: (_) => AuthProvider(authService, firestoreService),
         ),

@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hangout/models/hangout_model.dart';
 import 'package:hangout/models/user_model.dart';
 import 'package:hangout/models/rating_model.dart';
+import 'package:hangout/models/participation_model.dart';
+import 'package:hangout/models/audit_log_model.dart';
 
 void main() {
   group('HangoutModel Resilience & Security Tests', () {
@@ -142,6 +144,46 @@ void main() {
 
       expect(spotsLeft, 0);
       expect(isFull, isTrue);
+    });
+  });
+
+  group('DBMS Normalized Entity Tests', () {
+    test('ParticipationModel correctly serializes composite entity values', () {
+      final now = DateTime.now();
+      final part = ParticipationModel(
+        id: 'h_123_u_456',
+        hangoutId: 'h_123',
+        userId: 'u_456',
+        userDisplayName: 'Samantha',
+        role: ParticipationRole.attendee,
+        status: ParticipationStatus.confirmed,
+        joinedAt: now,
+      );
+
+      final map = part.toMap();
+      expect(map['hangoutId'], 'h_123');
+      expect(map['userId'], 'u_456');
+      expect(map['userDisplayName'], 'Samantha');
+      expect(map['role'], 'attendee');
+      expect(map['status'], 'confirmed');
+    });
+
+    test('AuditLogModel correctly creates immutable audit trail', () {
+      final now = DateTime.now();
+      final audit = AuditLogModel(
+        id: 'log_999',
+        action: 'join_hangout',
+        actorUid: 'u_789',
+        targetId: 'h_123',
+        metadata: {'platform': 'web', 'client_version': '1.0.0'},
+        timestamp: now,
+      );
+
+      final map = audit.toMap();
+      expect(map['action'], 'join_hangout');
+      expect(map['actorUid'], 'u_789');
+      expect(map['targetId'], 'h_123');
+      expect(map['metadata']['platform'], 'web');
     });
   });
 }
