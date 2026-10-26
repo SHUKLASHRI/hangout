@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/hangout_model.dart';
-import '../../services/trust_service.dart';
+import '../../models/rating_model.dart';
+import '../../providers/auth_provider.dart';
 import '../../core/theme.dart';
 import '../../core/error_handler.dart';
 import '../../widgets/liquid_glass_card.dart';
@@ -33,14 +35,35 @@ class _RatingScreenState extends State<RatingScreen> {
       return;
     }
 
+    final auth = context.read<AuthProvider>();
+    final currentUid = auth.firebaseUser?.uid ?? auth.userModel?.uid;
+    if (currentUid == null) {
+      ErrorHandler.showError(context, "You must be signed in to submit a rating.");
+      return;
+    }
+    if (currentUid == widget.targetUid) {
+      ErrorHandler.showError(context, "You cannot rate yourself.");
+      return;
+    }
+
     setState(() => _isLoading = true);
-    final trustService = context.read<TrustService>();
 
     try {
-      // In a real app, we'd save the RatingModel to Firestore
-      // For MVP, we directly trigger the trust recalculation simulation
-      await Future.delayed(const Duration(seconds: 1));
-      await trustService.recalculateTrust(widget.targetUid);
+      final ratingId = 'r_${DateTime.now().millisecondsSinceEpoch}_$currentUid';
+      final ratingModel = RatingModel(
+        id: ratingId,
+        hangoutId: widget.hangout.id,
+        fromUid: currentUid,
+        toUid: widget.targetUid,
+        score: _rating.toDouble(),
+        comment: _commentController.text.trim().isNotEmpty ? _commentController.text.trim() : null,
+        createdAt: DateTime.now(),
+      );
+
+      await FirebaseFirestore.instance
+          .collection('ratings')
+          .doc(ratingId)
+          .set(ratingModel.toMap());
 
       if (mounted) {
         ErrorHandler.showSuccess(context, "Rating submitted for ${widget.targetName}!");
@@ -55,6 +78,7 @@ class _RatingScreenState extends State<RatingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final initial = widget.targetName.isNotEmpty ? widget.targetName[0].toUpperCase() : 'U';
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text("Rate Your Experience"), backgroundColor: Colors.transparent, elevation: 0),
@@ -66,7 +90,7 @@ class _RatingScreenState extends State<RatingScreen> {
             CircleAvatar(
               radius: 40,
               backgroundColor: AppColors.surfaceElevated,
-              child: Text(widget.targetName[0].toUpperCase(), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              child: Text(initial, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 24),
             Text(

@@ -53,7 +53,7 @@ class HostDashboardScreen extends StatelessWidget {
           children: [
             CircleAvatar(
               backgroundColor: isPresent ? AppColors.success.withValues(alpha: 0.2) : AppColors.trustBlue.withValues(alpha: 0.2),
-              child: Text(name[0], style: TextStyle(color: isPresent ? AppColors.success : AppColors.trustBlue, fontWeight: FontWeight.bold)),
+              child: Text(name.isNotEmpty ? name[0] : 'P', style: TextStyle(color: isPresent ? AppColors.success : AppColors.trustBlue, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(width: 16),
             Expanded(child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold))),

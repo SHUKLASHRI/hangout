@@ -24,12 +24,19 @@ class FirestoreService {
   }
 
   // Hangout Methods
-  Stream<List<HangoutModel>> streamNearbyHangouts() {
+  Stream<List<HangoutModel>> streamNearbyHangouts({int limit = 50}) {
     return _db.collection('hangouts')
         .where('status', isEqualTo: 'active')
+        .limit(limit)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => HangoutModel.fromFirestore(doc)).toList();
+      final list = <HangoutModel>[];
+      for (final doc in snapshot.docs) {
+        try {
+          list.add(HangoutModel.fromFirestore(doc));
+        } catch (_) {}
+      }
+      return list;
     });
   }
 }

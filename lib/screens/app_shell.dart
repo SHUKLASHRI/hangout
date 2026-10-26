@@ -17,7 +17,9 @@ class AppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<AppStateProvider>();
     final routerState = GoRouterState.of(context);
-    state.syncIndexWithRoute(routerState.matchedLocation);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      state.syncIndexWithRoute(routerState.matchedLocation);
+    });
 
     return LayoutBuilder(
       builder: (context, constraints) {

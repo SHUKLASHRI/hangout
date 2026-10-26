@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +10,8 @@ import '../../widgets/shared/app_inputs.dart';
 import '../../widgets/overlays/notifications_overlay.dart';
 import '../location_picker_screen.dart';
 import '../../models/hangout_model.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/hangout_service.dart';
 import 'package:go_router/go_router.dart';
 
 class CreateHangoutScreen extends StatefulWidget {
@@ -350,8 +353,21 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
   }
 
   Future<void> _submitHangout() async {
-    if (_nameController.text.isEmpty || _locationController.text.isEmpty || _selectedDate == null || _selectedTime == null) {
+    if (_nameController.text.trim().isEmpty || _locationController.text.trim().isEmpty || _selectedDate == null || _selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all required fields.')));
+      return;
+    }
+
+    final auth = context.read<AuthProvider>();
+    final currentUid = auth.firebaseUser?.uid ?? auth.userModel?.uid;
+    if (currentUid == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please sign in to host a hangout.')));
+      context.push('/login');
+      return;
+    }
+
+    if (auth.userModel?.isSuspended == true) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Your account is currently suspended from hosting hangouts.')));
       return;
     }
 
@@ -361,39 +377,42 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
       final now = DateTime.now();
       final meetupTime = DateTime(
         _selectedDate!.year, _selectedDate!.month, _selectedDate!.day,
-        _selectedTime!.hour, _selectedTime!.minute
+        _selectedTime!.hour, _selectedTime!.minute,
       );
 
+      final hostName = auth.userModel?.displayName.isNotEmpty == true 
+          ? auth.userModel!.displayName 
+          : (auth.firebaseUser?.displayName ?? 'Host');
+      final hostTrust = auth.userModel?.trustScore ?? 4.0;
+      final lat = _selectedLat ?? 20.5937;
+      final lng = _selectedLng ?? 78.9629;
+
       final newHangout = HangoutModel(
-        id: 'h_${now.millisecondsSinceEpoch}',
-        title: _nameController.text,
-        description: _descController.text,
-        type: ActivityType.other, // Default or prompt user
+        id: 'h_${now.millisecondsSinceEpoch}_$currentUid',
+        title: _nameController.text.trim(),
+        description: _descController.text.trim(),
+        type: ActivityType.other,
         scheduledAt: meetupTime,
         expiresAt: meetupTime.add(const Duration(hours: 4)),
-        hostId: 'u_current',
-        hostName: 'Current User',
-        hostTrustScore: 4.8,
-        meetingPoint: GeoPoint(_selectedLat ?? 20.5937, _selectedLng ?? 78.9629),
-        meetingZone: GeoPoint(_selectedLat ?? 20.5937, _selectedLng ?? 78.9629),
+        hostId: currentUid,
+        hostName: hostName,
+        hostTrustScore: hostTrust,
+        meetingPoint: GeoPoint(lat, lng),
+        meetingZone: GeoPoint(lat, lng),
         maxParticipants: 10,
+        participantIds: [currentUid],
         status: HangoutStatus.active,
       );
 
-      // Simulating network delay
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // We log the created model to avoid 'unused variable' warning,
-      // in reality this would be passed to a service.
-      debugPrint('Created Hangout: ${newHangout.toMap()}');
-      
-      // Save to provider/state (if available)
+      final service = context.read<HangoutService>();
+      await service.createHangout(newHangout);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hangout created successfully!')));
         context.pop();
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error creating hangout: $e')));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

@@ -39,23 +39,34 @@ class HangoutModel {
   });
 
   factory HangoutModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = (doc.data() as Map<String, dynamic>?) ?? {};
+    final scheduledTs = data['scheduledAt'];
+    final expiresTs = data['expiresAt'];
+    final defaultGeo = const GeoPoint(20.5937, 78.9629);
+
+    final scheduled = scheduledTs is Timestamp 
+        ? scheduledTs.toDate() 
+        : DateTime.now();
+    final expires = expiresTs is Timestamp 
+        ? expiresTs.toDate() 
+        : scheduled.add(const Duration(hours: 4));
+
     return HangoutModel(
       id: doc.id,
-      title: data['title'] ?? '',
+      title: data['title'] ?? 'Untitled Hangout',
       description: data['description'] ?? '',
       type: ActivityType.values.firstWhere(
         (e) => e.name == (data['type'] ?? 'other'),
         orElse: () => ActivityType.other,
       ),
-      scheduledAt: (data['scheduledAt'] as Timestamp).toDate(),
-      expiresAt: (data['expiresAt'] as Timestamp).toDate(),
+      scheduledAt: scheduled,
+      expiresAt: expires,
       hostId: data['hostId'] ?? '',
-      hostName: data['hostName'] ?? '',
-      hostTrustScore: (data['hostTrustScore'] ?? 0.0).toDouble(),
-      meetingPoint: data['meetingPoint'] as GeoPoint,
-      meetingZone: data['meetingZone'] as GeoPoint,
-      maxParticipants: data['maxParticipants'] ?? 4,
+      hostName: (data['hostName'] as String?)?.isNotEmpty == true ? data['hostName']! : 'Host',
+      hostTrustScore: ((data['hostTrustScore'] ?? 4.0) as num).toDouble(),
+      meetingPoint: data['meetingPoint'] is GeoPoint ? data['meetingPoint'] as GeoPoint : defaultGeo,
+      meetingZone: data['meetingZone'] is GeoPoint ? data['meetingZone'] as GeoPoint : defaultGeo,
+      maxParticipants: ((data['maxParticipants'] ?? 4) as num).toInt(),
       participantIds: List<String>.from(data['participantIds'] ?? []),
       checkedInUids: List<String>.from(data['checkedInUids'] ?? []),
       status: HangoutStatus.values.firstWhere(

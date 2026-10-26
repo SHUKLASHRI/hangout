@@ -6,12 +6,22 @@ class HangoutService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   // Stream of active hangouts
-  Stream<List<HangoutModel>> streamActiveHangouts() {
+  Stream<List<HangoutModel>> streamActiveHangouts({int limit = 50}) {
     return _db.collection(AppConstants.hangoutsCollection)
         .where('status', isEqualTo: HangoutStatus.active.name)
+        .limit(limit)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => HangoutModel.fromFirestore(doc)).toList();
+      final list = <HangoutModel>[];
+      for (final doc in snapshot.docs) {
+        try {
+          list.add(HangoutModel.fromFirestore(doc));
+        } catch (e) {
+          // Log and skip bad document without crashing the stream
+          // debugPrint is imported via flutter/foundation if needed
+        }
+      }
+      return list;
     });
   }
 

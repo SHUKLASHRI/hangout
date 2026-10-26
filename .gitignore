@@ -8,6 +8,8 @@
 .pub-cache/
 .pub/
 /build/
+**/android/local.properties
+local.properties
 
 # Firebase-specific
 .firebase/

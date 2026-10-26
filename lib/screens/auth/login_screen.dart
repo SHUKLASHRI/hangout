@@ -1,13 +1,110 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme.dart';
 import '../../widgets/liquid_glass_card.dart';
+import '../../providers/auth_provider.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
+
+  void _showEmailLoginModal(BuildContext context) {
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    bool isSubmitting = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Container(
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 24,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Welcome Back',
+                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Sign in to your HANGOUT account',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: 'Email Address',
+                  prefixIcon: Icon(LucideIcons.mail, size: 20),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  prefixIcon: Icon(LucideIcons.lock, size: 20),
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: isSubmitting
+                    ? null
+                    : () async {
+                        final email = emailController.text.trim();
+                        final password = passwordController.text;
+                        if (email.isEmpty || password.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Please enter your email and password.')),
+                          );
+                          return;
+                        }
+                        setModalState(() => isSubmitting = true);
+                        try {
+                          await context.read<AuthProvider>().signInWithEmail(email, password);
+                          if (ctx.mounted) Navigator.pop(ctx);
+                          if (context.mounted) context.go('/map');
+                        } catch (e) {
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Login failed: $e')),
+                            );
+                          }
+                        } finally {
+                          if (ctx.mounted) setModalState(() => isSubmitting = false);
+                        }
+                      },
+                child: isSubmitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      )
+                    : const Text('SIGN IN'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,19 +166,26 @@ class LoginScreen extends StatelessWidget {
                   _buildLoginButton(
                     icon: LucideIcons.mail,
                     label: 'Continue with Email',
-                    onTap: () => context.go('/map'), // Direct to app for demo
-                  ),
-                  const SizedBox(height: 16),
-                  _buildLoginButton(
-                    icon: LucideIcons.smartphone,
-                    label: 'Continue with Phone',
-                    onTap: () {},
+                    onTap: () => _showEmailLoginModal(context),
                   ),
                   const SizedBox(height: 16),
                   _buildLoginButton(
                     icon: LucideIcons.globe,
-                    label: 'Continue with Web',
-                    onTap: () {},
+                    label: 'Continue with Google',
+                    onTap: () async {
+                      try {
+                        await context.read<AuthProvider>().loginWithGoogle();
+                        if (context.mounted && context.read<AuthProvider>().isLoggedIn) {
+                          context.go('/map');
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Google Sign-In failed: $e')),
+                          );
+                        }
+                      }
+                    },
                   ),
                   
                   const Spacer(flex: 2),

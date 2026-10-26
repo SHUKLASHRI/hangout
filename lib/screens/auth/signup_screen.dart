@@ -112,12 +112,44 @@ class _SignupScreenState extends State<SignupScreen> {
                             const SizedBox(height: 24),
                             
                             ElevatedButton(
-                              onPressed: (auth.isLoading || !_isAgeConfirmed) ? null : () {
-                                // Will be integrated in Gen 19
-                                context.go('/map');
+                              onPressed: (auth.isLoading || !_isAgeConfirmed) ? null : () async {
+                                final name = _nameController.text.trim();
+                                final email = _emailController.text.trim();
+                                final password = _passwordController.text;
+
+                                if (email.isEmpty || password.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Please enter email and password.')),
+                                  );
+                                  return;
+                                }
+
+                                if (password.length < 6) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Password must be at least 6 characters.')),
+                                  );
+                                  return;
+                                }
+
+                                try {
+                                  await auth.signUpWithEmail(email, password, name);
+                                  if (context.mounted) {
+                                    context.go('/onboarding');
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Sign up error: $e')),
+                                    );
+                                  }
+                                }
                               },
                               child: auth.isLoading 
-                                ? const CircularProgressIndicator(color: Colors.white) 
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                  ) 
                                 : const Text("SIGN UP"),
                             ),
                           ],

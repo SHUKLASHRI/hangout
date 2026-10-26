@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../widgets/liquid_glass_card.dart';
+import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/firestore_service.dart';
 
@@ -43,12 +44,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final auth = context.read<AuthProvider>();
     final firestore = context.read<FirestoreService>();
 
-    if (auth.userModel == null) return;
+    final fbUser = auth.firebaseUser;
+    if (fbUser == null && auth.userModel == null) {
+      context.go('/login');
+      return;
+    }
 
-    final updatedUser = auth.userModel!.copyWith(
-      displayName: _nameController.text.isEmpty ? auth.userModel!.displayName : _nameController.text,
+    final displayName = _nameController.text.trim().isNotEmpty 
+        ? _nameController.text.trim() 
+        : (auth.userModel?.displayName ?? fbUser?.displayName ?? 'User');
+
+    final updatedUser = auth.userModel?.copyWith(
+      displayName: displayName,
+      campus: _selectedCampus,
       onboardingCompleted: true,
       interests: _selectedInterests,
+    ) ?? UserModel(
+      uid: fbUser!.uid,
+      displayName: displayName,
+      email: fbUser.email ?? '',
+      photoUrl: fbUser.photoURL,
+      campus: _selectedCampus,
+      interests: _selectedInterests,
+      onboardingCompleted: true,
+      createdAt: DateTime.now(),
     );
 
     await firestore.createUser(updatedUser);

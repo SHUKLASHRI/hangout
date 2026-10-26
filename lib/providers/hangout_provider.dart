@@ -8,6 +8,7 @@ class HangoutProvider extends ChangeNotifier {
   
   List<HangoutModel> _hangouts = [];
   bool _isLoading = true;
+  String? _errorMessage;
   StreamSubscription? _subscription;
   
   // Filters
@@ -23,19 +24,33 @@ class HangoutProvider extends ChangeNotifier {
   }
   
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
   ActivityType? get categoryFilter => _categoryFilter;
 
   void _init() {
-    _subscription = _service.streamActiveHangouts().listen((list) {
-      _hangouts = list;
-      _isLoading = false;
-      notifyListeners();
-    });
+    _subscription = _service.streamActiveHangouts().listen(
+      (list) {
+        _hangouts = list;
+        _isLoading = false;
+        _errorMessage = null;
+        notifyListeners();
+      },
+      onError: (error) {
+        debugPrint('[HangoutProvider] Stream error: $error');
+        _isLoading = false;
+        _errorMessage = error.toString();
+        notifyListeners();
+      },
+    );
   }
 
   void setFilter(ActivityType? type) {
     _categoryFilter = type;
     notifyListeners();
+  }
+
+  Future<void> create(HangoutModel hangout) async {
+    await _service.createHangout(hangout);
   }
 
   Future<void> join(String hangoutId, String uid) async {
@@ -44,6 +59,10 @@ class HangoutProvider extends ChangeNotifier {
 
   Future<void> leave(String hangoutId, String uid) async {
     await _service.leaveHangout(hangoutId, uid);
+  }
+
+  Future<void> cancel(String hangoutId) async {
+    await _service.cancelHangout(hangoutId);
   }
 
   @override

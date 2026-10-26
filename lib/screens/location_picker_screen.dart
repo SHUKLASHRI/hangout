@@ -35,6 +35,14 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _currentCenter = widget.initialPosition ?? const LatLng(20.5937, 78.9629);
   }
 
+  Timer? _debounceTimer;
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
   Future<void> _fetchAddress(LatLng position) async {
     setState(() => _isLoadingAddress = true);
     final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']?.isNotEmpty == true ? dotenv.env['GOOGLE_MAPS_API_KEY']! : 'AIzaSyAXG-Vh5-aatnwfSwS4Za4zs_HVXf3Jp64';
@@ -47,7 +55,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         final data = json.decode(response.body);
         if (data['status'] == 'OK') {
           final results = data['results'] as List;
-          if (results.isNotEmpty) {
+          if (results.isNotEmpty && mounted) {
             setState(() {
               _currentAddress = results.first['formatted_address'];
             });
@@ -57,7 +65,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     } catch (e) {
       debugPrint('Geocoding error: $e');
     } finally {
-      setState(() => _isLoadingAddress = false);
+      if (mounted) {
+        setState(() => _isLoadingAddress = false);
+      }
     }
   }
 
@@ -71,12 +81,21 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               target: widget.initialPosition ?? const LatLng(20.5937, 78.9629),
               zoom: 15,
             ),
-            onMapCreated: (controller) => _controller.complete(controller),
+            onMapCreated: (controller) {
+              if (!_controller.isCompleted) {
+                _controller.complete(controller);
+              }
+            },
             onCameraMove: (position) {
               _currentCenter = position.target;
             },
             onCameraIdle: () {
-              _fetchAddress(_currentCenter);
+              _debounceTimer?.cancel();
+              _debounceTimer = Timer(const Duration(milliseconds: 600), () {
+                if (mounted) {
+                  _fetchAddress(_currentCenter);
+                }
+              });
             },
             myLocationEnabled: true,
             myLocationButtonEnabled: false,

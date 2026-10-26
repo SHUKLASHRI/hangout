@@ -38,10 +38,15 @@ class LocationProvider extends ChangeNotifier {
   }
 
   void _startListening() {
-    _subscription = _service.positionStream.listen((position) {
-      _currentPosition = position;
-      notifyListeners();
-    });
+    _subscription = _service.positionStream.listen(
+      (position) {
+        _currentPosition = position;
+        notifyListeners();
+      },
+      onError: (e) {
+        debugPrint('[LocationProvider] Position stream error: $e');
+      },
+    );
   }
 
   Future<void> refreshLocation() async {

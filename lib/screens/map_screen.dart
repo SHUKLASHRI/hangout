@@ -22,6 +22,7 @@ class _MapScreenState extends State<MapScreen> {
   final Completer<GoogleMapController> _controller = Completer();
   final Set<Marker> _markers = {};
   final Set<Circle> _circles = {};
+  final Map<String, BitmapDescriptor> _markerCache = {};
   bool _isGeneratingMarkers = false;
   String? _lastHangoutListHash;
 
@@ -32,7 +33,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<void> _updateMapElements(List<HangoutModel> hangouts) async {
     // Avoid re-generating if list hasn't changed
-    final hash = hangouts.map((h) => h.id).join(',');
+    final hash = hangouts.map((h) => '${h.id}_${h.status.name}_${h.participantIds.length}').join(',');
     if (hash == _lastHangoutListHash || _isGeneratingMarkers) return;
     _lastHangoutListHash = hash;
 
@@ -43,9 +44,14 @@ class _MapScreenState extends State<MapScreen> {
 
     for (final hangout in hangouts) {
       try {
-        final icon = await MarkerGenerator.createCustomMarkerBitmap(
-          HangoutMarkerWidget(hangout: hangout),
-        );
+        final cacheKey = '${hangout.id}_${hangout.status.name}_${hangout.participantIds.length}';
+        BitmapDescriptor? icon = _markerCache[cacheKey];
+        if (icon == null) {
+          icon = await MarkerGenerator.createCustomMarkerBitmap(
+            HangoutMarkerWidget(hangout: hangout),
+          );
+          _markerCache[cacheKey] = icon;
+        }
 
         newMarkers.add(
           Marker(

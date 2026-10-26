@@ -34,22 +34,23 @@ class UserModel {
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = (doc.data() as Map<String, dynamic>?) ?? {};
+    final createdTs = data['createdAt'];
     return UserModel(
       uid: doc.id,
-      displayName: data['displayName'] ?? '',
+      displayName: data['displayName'] ?? 'User',
       email: data['email'] ?? '',
       photoUrl: data['photoUrl'],
       bio: data['bio'],
       interests: List<String>.from(data['interests'] ?? []),
-      trustScore: (data['trustScore'] ?? 3.0).toDouble(),
-      hangsCompleted: data['hangsCompleted'] ?? 0,
-      noShows: data['noShows'] ?? 0,
+      trustScore: ((data['trustScore'] ?? 4.0) as num).toDouble(),
+      hangsCompleted: ((data['hangsCompleted'] ?? 0) as num).toInt(),
+      noShows: ((data['noShows'] ?? 0) as num).toInt(),
       campus: data['campus'] ?? '',
       isSuspended: data['isSuspended'] ?? false,
       canCreate: data['canCreate'] ?? true,
       onboardingCompleted: data['onboardingCompleted'] ?? false,
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: createdTs is Timestamp ? createdTs.toDate() : DateTime.now(),
     );
   }
 

@@ -25,8 +25,9 @@ class _HangoutCardState extends State<HangoutCard> {
 
   @override
   Widget build(BuildContext context) {
-    final spotsLeft = widget.hangout.maxParticipants - widget.hangout.participantIds.length;
-    final isFull = spotsLeft <= 0;
+    final rawSpots = widget.hangout.maxParticipants - widget.hangout.participantIds.length;
+    final spotsLeft = rawSpots > 0 ? rawSpots : 0;
+    final isFull = rawSpots <= 0;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -35,7 +36,7 @@ class _HangoutCardState extends State<HangoutCard> {
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          transform: Matrix4.identity()..scale(_isHovered ? 1.02 : 1.0),
+          transform: Matrix4.diagonal3Values(_isHovered ? 1.02 : 1.0, _isHovered ? 1.02 : 1.0, 1.0),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppConstants.radiusLg),
@@ -149,7 +150,7 @@ class _HangoutCardState extends State<HangoutCard> {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              widget.hangout.hostName[0].toUpperCase(),
+                              widget.hangout.hostName.isNotEmpty ? widget.hangout.hostName[0].toUpperCase() : 'H',
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,

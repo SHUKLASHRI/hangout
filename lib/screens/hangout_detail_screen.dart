@@ -7,6 +7,7 @@ import '../../models/hangout_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/hangout_provider.dart';
 import '../../core/theme.dart';
+import '../../core/error_handler.dart';
 import '../../widgets/liquid_glass_card.dart';
 import '../../widgets/trust_badge.dart';
 import '../../widgets/activity_chip.dart';
@@ -21,15 +22,55 @@ class HangoutDetailScreen extends StatelessWidget {
     final auth = context.watch<AuthProvider>();
     final hangoutProvider = context.watch<HangoutProvider>();
     
-    // Find the hangout in the local stream
-    final hangout = hangoutProvider.hangouts.firstWhere(
-      (h) => h.id == id,
-      orElse: () => throw Exception("Hangout not found"),
-    );
+    // Find the hangout safely in the local stream
+    HangoutModel? hangout;
+    for (final h in hangoutProvider.hangouts) {
+      if (h.id == id) {
+        hangout = h;
+        break;
+      }
+    }
 
-    final isParticipant = hangout.participantIds.contains(auth.userModel?.uid);
-    final isHost = hangout.hostId == auth.userModel?.uid;
-    final spotsLeft = hangout.maxParticipants - hangout.participantIds.length;
+    if (hangout == null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(LucideIcons.arrowLeft),
+            onPressed: () => context.pop(),
+          ),
+          title: const Text("Hangout Details"),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(LucideIcons.mapPinOff, size: 64, color: AppColors.textSecondary),
+                const SizedBox(height: 16),
+                const Text(
+                  "Hangout not found or is no longer active",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => context.pop(),
+                  child: const Text("Go Back"),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final currentUid = auth.userModel?.uid ?? auth.firebaseUser?.uid;
+    final isParticipant = currentUid != null && hangout.participantIds.contains(currentUid);
+    final isHost = currentUid != null && hangout.hostId == currentUid;
+    final rawSpots = hangout.maxParticipants - hangout.participantIds.length;
+    final spotsLeft = rawSpots > 0 ? rawSpots : 0;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -58,7 +99,7 @@ class HangoutDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomSheet: _buildActionButton(context, hangout, isParticipant, isHost, auth.userModel?.uid),
+      bottomSheet: _buildActionButton(context, hangout, isParticipant, isHost, currentUid),
     );
   }
 
@@ -99,6 +140,7 @@ class HangoutDetailScreen extends StatelessWidget {
   }
 
   Widget _buildHostSection(HangoutModel hangout) {
+    final initial = hangout.hostName.isNotEmpty ? hangout.hostName[0].toUpperCase() : 'H';
     return LiquidGlassCard(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -106,7 +148,7 @@ class HangoutDetailScreen extends StatelessWidget {
           CircleAvatar(
             radius: 24,
             backgroundColor: AppColors.vibrantOrange.withValues(alpha: 0.1),
-            child: Text(hangout.hostName[0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.vibrantOrange)),
+            child: Text(initial, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.vibrantOrange)),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -226,7 +268,6 @@ class HangoutDetailScreen extends StatelessWidget {
 
     if (isExpired && (isParticipant || isHost)) {
       return _bottomAction("RATE PARTICIPANTS", AppColors.success, () {
-        // Open rating for the host as an example
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -241,20 +282,70 @@ class HangoutDetailScreen extends StatelessWidget {
     }
 
     if (isHost) {
-      return _bottomAction("CANCEL HANGOUT", Colors.red, () {
-        context.read<HangoutProvider>().setFilter(null); // Simple cancellation placeholder
-        context.pop();
+      return _bottomAction("CANCEL HANGOUT", Colors.red, () async {
+        final confirm = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text("Cancel Hangout?"),
+            content: const Text("Are you sure you want to cancel this hangout? All participants will be notified."),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("No")),
+              TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("Yes, Cancel", style: TextStyle(color: Colors.red))),
+            ],
+          ),
+        );
+
+        if (confirm == true && context.mounted) {
+          try {
+            await context.read<HangoutProvider>().cancel(hangout.id);
+            if (context.mounted) {
+              ErrorHandler.showSuccess(context, "Hangout cancelled successfully");
+              context.pop();
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ErrorHandler.showError(context, "Failed to cancel: $e");
+            }
+          }
+        }
       });
     }
 
     if (isParticipant) {
-      return _bottomAction("LEAVE HANGOUT", AppColors.textSecondary, () {
-        context.read<HangoutProvider>().leave(hangout.id, uid!);
+      return _bottomAction("LEAVE HANGOUT", AppColors.textSecondary, () async {
+        if (uid == null) {
+          ErrorHandler.showError(context, "Please sign in to leave");
+          return;
+        }
+        try {
+          await context.read<HangoutProvider>().leave(hangout.id, uid);
+          if (context.mounted) {
+            ErrorHandler.showSuccess(context, "You left the hangout");
+          }
+        } catch (e) {
+          if (context.mounted) {
+            ErrorHandler.showError(context, "Failed to leave: $e");
+          }
+        }
       });
     }
 
-    return _bottomAction("JOIN HANGOUT", AppColors.vibrantOrange, () {
-      context.read<HangoutProvider>().join(hangout.id, uid!);
+    return _bottomAction("JOIN HANGOUT", AppColors.vibrantOrange, () async {
+      if (uid == null) {
+        ErrorHandler.showError(context, "Please sign in to join this hangout");
+        context.push('/login');
+        return;
+      }
+      try {
+        await context.read<HangoutProvider>().join(hangout.id, uid);
+        if (context.mounted) {
+          ErrorHandler.showSuccess(context, "Successfully joined hangout!");
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ErrorHandler.showError(context, "Failed to join: $e");
+        }
+      }
     });
   }
 

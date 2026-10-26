@@ -38,10 +38,15 @@ class AppStateProvider extends ChangeNotifier {
 
   // Helper to resolve index from route path
   void syncIndexWithRoute(String path) {
-    if (path.startsWith('/map')) _currentIndex = 0;
-    else if (path.startsWith('/feed')) _currentIndex = 1;
-    else if (path.startsWith('/chat')) _currentIndex = 2;
-    else if (path.startsWith('/profile')) _currentIndex = 3;
-    notifyListeners();
+    int target = _currentIndex;
+    if (path.startsWith('/map')) target = 0;
+    else if (path.startsWith('/feed')) target = 1;
+    else if (path.startsWith('/chat')) target = 2;
+    else if (path.startsWith('/profile')) target = 3;
+    
+    if (target != _currentIndex) {
+      _currentIndex = target;
+      notifyListeners();
+    }
   }
 }

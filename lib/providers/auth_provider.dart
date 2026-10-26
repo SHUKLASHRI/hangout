@@ -55,6 +55,27 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> signUpWithEmail(String email, String password, String displayName) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final cred = await _authService.signUpWithEmail(email, password);
+      if (cred.user != null) {
+        final newUser = UserModel(
+          uid: cred.user!.uid,
+          displayName: displayName.isNotEmpty ? displayName : (cred.user!.displayName ?? 'New User'),
+          email: email,
+          photoUrl: cred.user!.photoURL,
+          createdAt: DateTime.now(),
+        );
+        await _firestoreService.createUser(newUser);
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> loginWithGoogle() async {
     try {
       _isLoading = true;

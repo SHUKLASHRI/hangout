@@ -38,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!auth.isLoggedIn) {
       context.go('/login');
-    } else if (auth.userModel?.onboardingCompleted == false) {
+    } else if (auth.userModel == null || !auth.userModel!.onboardingCompleted) {
       context.go('/onboarding');
     } else {
       context.go('/map');
