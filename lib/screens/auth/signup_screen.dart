@@ -138,8 +138,16 @@ class _SignupScreenState extends State<SignupScreen> {
                                   }
                                 } catch (e) {
                                   if (context.mounted) {
+                                    final errStr = e.toString();
+                                    final displayMsg = (errStr.contains('configuration-not-found') || errStr.contains('CONFIGURATION_NOT_FOUND'))
+                                        ? 'Email/Password sign-in is disabled in Firebase Console. Go to Authentication > Sign-in method and click Enable.'
+                                        : errStr.replaceAll(RegExp(r'\[.*?\]'), '').trim();
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Sign up error: $e')),
+                                      SnackBar(
+                                        content: Text(displayMsg),
+                                        backgroundColor: Colors.red.shade800,
+                                        duration: const Duration(seconds: 6),
+                                      ),
                                     );
                                   }
                                 }
