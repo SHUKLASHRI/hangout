@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/shared/app_inputs.dart';
 import '../../widgets/overlays/notifications_overlay.dart';
 import '../location_picker_screen.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../models/hangout_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/hangout_service.dart';
@@ -121,28 +122,153 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
               
               const SizedBox(height: 24),
               
-              _buildLabel('Location'),
-              AppTextField(
-                controller: _locationController,
-                hint: 'Search or pick on map...',
-                prefixIcon: LucideIcons.mapPin,
-                suffixIcon: IconButton(
-                  icon: const Icon(LucideIcons.map, color: AppColors.trustBlue),
-                  onPressed: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LocationPickerScreen(),
+              _buildLabel('Meeting Point & Location'),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: _selectedLat != null ? AppColors.trustBlue.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.06),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_selectedLat != null) ...[
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.trustBlue.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(LucideIcons.mapPin, color: AppColors.trustBlue, size: 20),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _locationController.text.isNotEmpty ? _locationController.text : 'Pin Dropped on Map',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'GPS: ${_selectedLat!.toStringAsFixed(4)}, ${_selectedLng!.toStringAsFixed(4)}',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    );
-                    if (result != null && result is Map) {
-                      setState(() {
-                        _locationController.text = result['address'];
-                        _selectedLat = result['lat'];
-                        _selectedLng = result['lng'];
-                      });
-                    }
-                  },
+                      const SizedBox(height: 12),
+                      const Divider(height: 1),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          const Icon(LucideIcons.shieldCheck, size: 14, color: AppColors.emeraldGreen),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Guests only see approximate 500m zone until approved.',
+                              style: GoogleFonts.inter(fontSize: 11, color: AppColors.textSecondary),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: _openLocationPicker,
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              'Change Pin',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.trustBlue,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      InkWell(
+                        onTap: _openLocationPicker,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.trustBlue.withValues(alpha: 0.2)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.vibrantOrange.withValues(alpha: 0.12),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  LucideIcons.mapPin,
+                                  color: AppColors.vibrantOrange,
+                                  size: 22,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Pin Drop Location on Map',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Tap to drag & drop exact meetup pin',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.textSecondary),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               
@@ -436,5 +562,21 @@ class _CreateHangoutScreenState extends State<CreateHangoutScreen> {
     if (time != null) setState(() => _selectedTime = time);
   }
 
-
+  Future<void> _openLocationPicker() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LocationPickerScreen(
+          initialPosition: _selectedLat != null ? LatLng(_selectedLat!, _selectedLng!) : null,
+        ),
+      ),
+    );
+    if (result != null && result is Map) {
+      setState(() {
+        _locationController.text = result['address'] ?? '';
+        _selectedLat = (result['lat'] as num?)?.toDouble();
+        _selectedLng = (result['lng'] as num?)?.toDouble();
+      });
+    }
+  }
 }
